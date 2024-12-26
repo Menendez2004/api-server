@@ -1,4 +1,4 @@
-# Project Title
+# shoes-api
 
 ### Version: v1
 
