@@ -1,4 +1,4 @@
-# shoes-api
+# Shoes-api
 
 ### Version: v1
 
