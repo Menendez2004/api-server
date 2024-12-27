@@ -9,8 +9,8 @@ import {
 import { Request, Response } from 'express';
 
 @Catch()
-export class GlobalExceptionFilter implements ExceptionFilter {
-    private readonly logger = new Logger(GlobalExceptionFilter.name);
+export class globalFilterException implements ExceptionFilter {
+    private readonly logger = new Logger(globalFilterException.name);
 
     catch(exception: unknown, host: ArgumentsHost) {
         if (host.getType() !== 'http') {

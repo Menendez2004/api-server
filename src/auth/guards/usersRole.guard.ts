@@ -20,9 +20,7 @@ export class RolesGuard implements CanActivate {
 
     canActivate(context: ExecutionContext): boolean {
         const requiredRoles = this.reflector.get<string[]>('roles', context.getHandler());
-        if (!requiredRoles || requiredRoles.length === 0) {
-            return true; // No roles required, allow access
-        }
+        if (!requiredRoles ) return true; // No roles required, allow access
 
         // Extract the request and user information from the context
         const request = extractRequestFromContext(context);
