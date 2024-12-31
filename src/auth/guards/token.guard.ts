@@ -18,15 +18,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
      * @returns {Promise<any>} - The extracted request object.
      * @throws {UnauthorizedException} - If the request extraction fails or an error occurs.
      */
-
     async getRequest(context: ExecutionContext): Promise<any> {
         try {
             const request = await extractRequestFromContext(context);
-
             if (!request) {
                 throw new UnauthorizedException('Failed to extract request from context.');
             }
-
             return request;
         } catch (error) {
             throw new UnauthorizedException(
