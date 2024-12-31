@@ -1,11 +1,12 @@
+import * as bcrypt from 'bcrypt';
 import { PrismaClient, User } from '@prisma/client';
-import * as argon2 from 'argon2';
 
 export default async (prisma: PrismaClient): Promise<User> => {
     const email = process.env.MANAGER_EMAIL;
-    const password = await argon2.hash(process.env.MANAGER_PASSWORD || '', {
-        type: argon2.argon2id,
-    });
+    if (!email) {
+        throw new Error('MANAGER_EMAIL environment variable is not set');
+    }
+    const password = await bcrypt.hash(process.env.MANAGER_PASSWORD || '', 10); // 10 rounds of salt
 
     return prisma.user.upsert({
         where: { email },
@@ -16,7 +17,7 @@ export default async (prisma: PrismaClient): Promise<User> => {
             email,
             isActive: true,
             roleId: 1,
-            addresses: 'Only addmins have access to this street 2004',
+            addresses: 'Only admins have access to this street 2004',
             password,
         },
         update: {},
