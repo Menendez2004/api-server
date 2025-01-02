@@ -1,17 +1,16 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UseFilters } from '@nestjs/common';
-import { HttpExceptionFilter } from 'src/http.exception.filter';
-import { PrismaService } from 'src/prisma.service';
-import { Prisma, User, UserRole } from '@prisma/client';
-import * as argon2 from 'argon2';
+import { PrismaService } from 'src/helpers/prisma/prisma.service';
+import { Prisma, Users, UserRoles } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+
 
 @Injectable()
-@UseFilters(new HttpExceptionFilter())
 export class UsersService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(private readonly prismaService: PrismaService) { }
 
-    async create(data: Prisma.UserCreateInput): Promise<User> {
+    async createUser(data: Prisma.UsersCreateInput): Promise<Users> {
         try {
-            const existingUser = await this.prisma.user.findUnique({
+            const existingUser = await this.prismaService.users.findUnique({
                 where: {
                     email: data.email,
                 },
@@ -19,24 +18,27 @@ export class UsersService {
             if (existingUser) {
                 throw new BadRequestException('This Email is already in use');
             }
-            return await this.prisma.user.create({ data });
+            return await this.prismaService.users.create({ data });
         } catch (err) {
             console.error('Error creating user:', err);
             throw new InternalServerErrorException('Failed to create user');
         }
     }
 
-    async hashPassword(password: string): Promise<string> {
+    async hashPass(password: string): Promise<string> {
+        const saltRounds = 10;
         try {
-            return await argon2.hash(password);
-        } catch (error) {
-            throw new InternalServerErrorException('Error hashing password');
+            return await bcrypt.hash(password, saltRounds);
+        } catch (err) {
+            throw new InternalServerErrorException(
+                'An error occurred while hashing the password. Please try again later.',
+            );
         }
     }
 
-    async findById(id: number): Promise<User | null> {
+    async findById(id: string): Promise<Users | null> {
         try {
-            const user = await this.prisma.user.findUnique({
+            const user = await this.prismaService.users.findUnique({
                 where: { id },
             });
 
@@ -49,19 +51,10 @@ export class UsersService {
         }
     }
 
-    async findByUUID(uuid: string): Promise<User | null> {
-        try {
-            return await this.prisma.user.findUnique({
-                where: { uuid },
-            });
-        } catch (err) {
-            throw new NotFoundException(`Error finding user by UUID ${uuid}: ${err.message}`);
-        }
-    }
 
-    async findByEmail(email: string): Promise<User | null> {
+    async findByEmail(email: string): Promise<Users | null> {
         try {
-            return await this.prisma.user.findUnique({
+            return await this.prismaService.users.findUnique({
                 where: { email },
             });
         } catch (err) {
@@ -69,11 +62,12 @@ export class UsersService {
         }
     }
 
-    async getUserRole(userId: number): Promise<UserRole | null> {
+    async getUserRole(userId: string): Promise<UserRoles | null> {
         try {
-            return await this.prisma.userRole.findFirst({
+            const users = await this.findById(userId);
+            return await this.prismaService.userRoles.findUnique({
                 where: {
-                    id: userId,
+                    id: users.roleId
                 },
             });
         } catch (error) {

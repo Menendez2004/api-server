@@ -1,55 +1,52 @@
-import { Injectable, InternalServerErrorException, UseFilters } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
-import { User } from '@prisma/client';
+import { Users } from '@prisma/client';
 import { LoginResponseDto } from './dto/response/signIn.dto';
-import * as argon2 from 'argon2';
-import { HttpExceptionFilter } from 'src/http.exception.filter';
+import * as bcrypt from 'bcrypt';
 
-Injectable()
-@UseFilters(new HttpExceptionFilter())
+@Injectable()
 export class AuthService {
     constructor(
-        private service: UsersService,
-        private jwt: JwtService
-    ) { }
+        private readonly userService: UsersService,
+        private readonly jwtService: JwtService,
+    ) {}
 
-    async login(user: User): Promise<LoginResponseDto> {
-        const userRole = await this.service.getUserRole(user.id);
+    async login(user: Users): Promise<LoginResponseDto> {
+        const userRole = await this.userService.getUserRole(user.id);
         const payload = {
             sub: user.id,
             role: userRole.name,
         };
         return {
-            accessToken: this.jwt.sign(payload),
+            accessToken: this.jwtService.sign(payload),
         };
     }
 
     async verifyCredentials(
         email: string,
         password: string,
-    ): Promise<User | null> {
-        const user = await this.service.findByEmail(email);
+    ): Promise<Users | null> {
+        const user = await this.userService.findByEmail(email);
         if (!user) {
-            return null;
+            throw new UnauthorizedException('Invalid credentials');
         }
 
-        const isPasswordValid = await this.verifyCredentials(user.password, password);
+        const isPasswordValid = await this.verifyPass(user.password, password);
 
         if (!isPasswordValid) {
-            return null;
+            throw new UnauthorizedException('Invalid credentials');
         }
 
         return user;
     }
-
 
     async verifyPass(
         hashedPassword: string,
         password: string,
     ): Promise<boolean> {
         try {
-            return await argon2.verify(hashedPassword, password);
+            return await bcrypt.compare(password, hashedPassword);
         } catch (err) {
             console.error('Error verifying password:', err);
             throw new InternalServerErrorException('Error verifying password, make sure that the password is correct');

@@ -1,6 +1,5 @@
 import { Body, Controller, Post, Res, UseFilters } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { HttpExceptionFilter } from 'src/http.exception.filter';
 import { UsersService } from 'src/users/users.service';
 import { AuthLocal } from './decorators/auth.local.decorator';
 import { LoginRequestDto } from './dto/request/signIn.req';
@@ -9,29 +8,29 @@ import { Auth } from './decorators/auth.roles.decorator';
 
 
 @Controller('auth')
-@UseFilters(new HttpExceptionFilter())
 export class AuthController {
     constructor(
         private readonly auth: AuthService,
-        private readonly user: UsersService
+        private readonly userService: UsersService
     ) { }
 
-    @Post('login')
+    @Post('signin')
     @AuthLocal()
     async login(@Body() req: LoginRequestDto, @Res() res: Response){
-        const user = await this.user.findByEmail(req.email);
+        const user = await this.userService.findByEmail(req.email);
         const response = await this.auth.login(user);
 
-        res.cookie('access_token', response.accessToken, {
+        res.cookie('access_token',
+            response.accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production' || 'development' ? true : false,
+            secure: process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'development',
             sameSite: 'strict',
-            maxAge: 4*60*60*1000,
+            maxAge: 1000 * 60 * 60 * 4,
         }).json(response);
         
     }
 
-    @Post('/logout')
+    @Post('/signout')
     @Auth('MANAGER', 'CLIENT')
     async logout(@Res() res: Response) {
         res.clearCookie('access_token').send('Logged out ✅️');

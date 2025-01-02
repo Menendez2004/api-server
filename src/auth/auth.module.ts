@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
-import { PrismaModule } from 'src/helpers/prisma/prisma.module';
+import { AuthController } from './auth.controller';
 import { UsersModule } from 'src/users/users.module';
-import { ConfigurationModule } from 'src/configuration/configuration.module';
-import { ConfigurationService } from 'src/configuration/configuration.service';
-import { LocalStrategy } from './strategy/local.strategy';
+import { PassportModule } from '@nestjs/passport';
+import { LocalPassportStrategy } from './strategies/local.passport.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigurationModule } from 'src/helpers/configuration/configuration.module';
+import { ConfigurationService } from 'src/helpers/configuration/configuration.service';
 
 @Module({
   imports: [
@@ -15,20 +15,18 @@ import { LocalStrategy } from './strategy/local.strategy';
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigurationModule],
-      inject: [ConfigurationService],
       useFactory: async (configService: ConfigurationService) => {
-        return {
+        return{
           secret: configService.jwtSecret,
-          signOptions: {
-            expiresIn: `${configService.jwtExpiration}`,
-          },
+          signOptions: { expiresIn: '1h' },
         };
       },
-    }),
-    PrismaModule,
+      inject: [ConfigurationService]
+    })
   ],
-  controllers: [AuthController],
-  providers: [AuthService, LocalStrategy],
-  exports: [AuthService, JwtModule], 
+
+  providers: [AuthService, LocalPassportStrategy, JwtStrategy],
+  exports: [AuthService, JwtModule],
 })
-export class AuthModule { }
+export class AuthModule {}
+
