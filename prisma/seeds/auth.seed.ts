@@ -1,23 +1,22 @@
 import * as bcrypt from 'bcrypt';
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient, Users } from '@prisma/client';
 
-export default async (prisma: PrismaClient): Promise<User> => {
+export default async (prisma: PrismaClient): Promise<Users> => {
     const email = process.env.MANAGER_EMAIL;
     if (!email) {
         throw new Error('MANAGER_EMAIL environment variable is not set');
     }
     const password = await bcrypt.hash(process.env.MANAGER_PASSWORD || '', 10); // 10 rounds of salt
 
-    return prisma.user.upsert({
+    return prisma.users.upsert({
         where: { email },
         create: {
-            firstName: 'manager',
-            lastName: 'admin',
-            username: 'MANAGER',
+            firstName: 'MANAGER',
+            lastName: 'ADMIN',
+            userName: 'MANAGER',
             email,
-            isActive: true,
             roleId: 1,
-            addresses: 'Only admins have access to this street 2004',
+            address: 'Only admins have access to this street 2004 headache',
             password,
         },
         update: {},
