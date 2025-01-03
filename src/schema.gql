@@ -1,0 +1,475 @@
+"""
+A custom scalar representing a timestamp.
+"""
+scalar TimeStamp
+
+"""
+Enum representing the status of an operation.
+"""
+enum Status {
+    SUCCESS
+    FAILED
+}
+
+"""
+Enum representing sorting order.
+"""
+enum SortFilter {
+    ASC
+    DESC
+}
+
+"""
+Input type for pagination settings.
+"""
+input PaginationSizeInput {
+    page: Int = 1
+    limit: Int = 20
+}
+
+"""
+Type representing pagination metadata.
+"""
+type PaginationMeta {
+    totalPages: Int!
+    page: Int!
+    limit: Int!
+    perPage: Int! # Number of items per page
+}
+
+"""
+Interface representing a response with status and message.
+"""
+interface Response {
+    status: Status!
+    message: String!
+}
+
+"""
+Type representing the response for sign-up.
+"""
+type SignUpResponse {
+    bearer_token: String
+}
+
+"""
+Type representing the response for sign-out.
+"""
+type SignOutResponse implements Response {
+    id: ID!
+}
+
+"""
+Type representing the response for forgot password.
+"""
+type ForgotPasswordResponse implements Response {
+    id: ID!
+}
+
+"""
+Type representing the response for reset password.
+"""
+type ResetPasswordResponse implements Response {
+    updated_at: Timestamp!
+}
+
+"""
+Type representing the response for adding a favorite.
+"""
+type AddFavoriteResponse implements Response {
+    created_at: Timestamp!
+}
+
+"""
+Type representing a user.
+"""
+type User {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    userName: String!
+    email: String!
+    createdAt: DateTime!
+}
+
+"""
+Type representing the authenticated user's information.
+"""
+type Me {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    email: String!
+    roles: [String!]!
+}
+
+"""
+Type representing the authentication payload.
+"""
+type AuthPayload {
+    accessToken: String!
+    exp: Int!
+    roles: [String!]!
+}
+
+"""
+Input type for sign-up.
+"""
+input SignUpInput {
+    firstName: String!
+    lastName: String!
+    email: String!
+    password: String!
+}
+
+"""
+Input type for sign-in.
+"""
+input SignInInput {
+    email: String!
+    password: String!
+}
+
+"""
+Input type for access token.
+"""
+input AccessTokenInput {
+    accessToken: String!
+}
+
+"""
+Input type for resetting password.
+"""
+input ResetPasswordInput {
+    resetToken: String!
+    newPassword: String!
+    confirmNewPassword: String!
+}
+
+"""
+Root query type.
+"""
+type Query {
+    mySelf: Me # Returns the user's information if the user is authenticated
+}
+
+"""
+Root mutation type.
+"""
+type Mutation {
+    signUp(input: SignUpInput!): Boolean! # Returns true if the user is created
+    signIn(input: SignInInput!): AuthPayload!
+    forgotPassword(email: String!): Boolean! # Returns true if it's possible to send the email
+    resetPassword(input: ResetPasswordInput!): AuthPayload!
+}
+
+"""
+Type representing a product image.
+"""
+type ProductImage {
+    id: ID!
+    productId: ID!
+    path: String!
+}
+
+"""
+Input type for creating a product image.
+"""
+input CreateProductImageInput {
+    productId: ID!
+    files: [Upload!]!
+}
+
+"""
+Query type for product images.
+"""
+type Query {
+    productImage(id: ID!): ProductImage
+    getAllProductImages(productId: ID!): [ProductImage!]! # Manage more than one image per product
+}
+
+"""
+Mutation type for product images.
+"""
+type Mutation {
+    createProductImage(input: CreateProductImageInput!): [ProductImage!]! # Just for managers
+    deleteProductImage(id: ID!): Boolean!
+}
+
+"""
+Type representing a Stripe payment.
+"""
+type StripePayment {
+    id: ID!
+    orderId: ID!
+    amount: Float!
+    currency: String!
+    stripePaymentId: String!
+    stripePaymentIntent: StripePaymentStatus!
+    stripeWebhookData: String
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    order: Order
+}
+
+"""
+Type representing a product.
+"""
+type Product {
+    id: ID!
+    name: String!
+    description: String
+    price: Float!
+    categoryId: ID!
+    stock: Int!
+    isAvailable: Boolean!
+    createdAt: Datetime!
+    updatedAt: Datetime!
+    likesCount: Int!
+    isLiked: Boolean!
+}
+
+"""
+Type representing product pagination.
+"""
+type ProductPagination {
+    collection: [Product!]!
+    meta: PaginationMeta!
+}
+
+"""
+Input type for creating a product.
+"""
+input CreateProductInput {
+    name: String!
+    description: String!
+    price: Float!
+    categoryId: ID!
+    stock: Int!
+    isAvailable: Boolean!
+}
+
+"""
+Input type for updating a product.
+"""
+input UpdateProductInput {
+    name: String
+    description: String
+    price: Float
+    categoryId: ID
+    stock: Int
+    isAvailable: Boolean
+}
+
+"""
+Enum representing product sorting options.
+"""
+enum ProductSortBy {
+    NAME
+    PRICE
+    CATEGORY_ID
+    IS_AVAILABLE
+}
+
+"""
+Input type for product sorting.
+"""
+input ProductSort {
+    sortBy: ProductSortBy!
+    order: SortFilter!
+}
+
+"""
+Input type for product filter options.
+"""
+input ProductFilterOptions {
+    name: String
+    price: Float
+    categoryName: String
+    isAvailable: Boolean
+}
+
+"""
+Query type for products.
+"""
+type Query {
+    products(
+        pagination: PaginationSizeInput
+        filter: ProductFilterOptions
+        orderBy: ProductSort
+    ): ProductPagination!
+    product(id: ID!): Product!
+}
+
+"""
+Mutation type for products.
+"""
+type Mutation {
+    createProduct(input: CreateProductInput!): Product!
+    updateProduct(id: ID!, input: UpdateProductInput!): Product!
+    deleteProduct(id: ID!): Boolean! # True for success, false for failure
+}
+
+"""
+Type representing an order item.
+"""
+type OrderItem {
+    id: ID!
+    orderId: ID!
+    productId: ID!
+    unitPrice: Float!
+    quantity: Int!
+    subTotal: Float!
+    total: Float!
+    order: Order
+    product: Product!
+}
+
+"""
+Type representing an order.
+"""
+type Order {
+    id: ID!
+    userId: ID!
+    products: [Product!]!
+    total: Float!
+    status: OrderStatus!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    user: User!
+    orderItems: [OrderItem!]!
+    payments: [StripePayment!]!
+}
+
+"""
+Enum representing order status.
+"""
+enum OrderStatus {
+    PENDING # Waiting for payment
+    COMPLETED
+    CANCELLED
+}
+
+"""
+Type representing the confirmation of a payment.
+"""
+type ConfirmationPayment {
+    confirmPayment: Boolean!
+}
+
+"""
+Type representing the order payload.
+"""
+type OrderPayload {
+    order: Order!
+    stripePaymentId: String! # Example: "id": "seti_1Mm8s8LkdIwHu7ix0OXBfTRG"
+}
+
+"""
+Input type for order filter.
+"""
+input OrderFilterInput {
+    status: OrderStatus
+    total: Float # Amount of the order (total from all products)
+}
+
+"""
+Query type for orders.
+"""
+type Query {
+    orders(
+        pagination: PaginationInput
+        status: OrderStatus # Optional filter by status
+    ): OrderPagination!
+    orders(getBy: OrderFilterInput): [Order!]!
+    order(id: ID!): Order! # Users can get their orders by ID
+    orderPayment(id: ID!): StripePayment!
+}
+
+"""
+Mutation type for orders.
+"""
+type Mutation {
+    createOrder(input: CreateOrderInput!): OrderPayload!
+    updateOrder(id: ID!, input: UpdateOrderInput!): Order! # Update an order
+    deleteOrder(id: ID!): Boolean! # Delete an order
+    updateOrderStatus(id: ID!, newStatus: OrderStatus!): Order! # Managers can change the status of the order
+}
+
+"""
+Type representing a product liked by a user.
+"""
+type ProductLiked {
+    id: ID!
+    productId: ID!
+    userId: ID!
+    createdAt: DateTime!
+}
+
+"""
+Mutation type for liking/unliking a product.
+"""
+type mutation {
+    likeProduct(productId: ID!): Boolean!
+    unlikeProduct(productId: ID!): Boolean!
+}
+
+"""
+Type representing a category.
+"""
+type Category {
+    id: ID!
+    name: String!
+}
+
+"""
+Query type for categories.
+"""
+type CategoryQuery {
+    categories(name: String): [Category!]! # Get all categories
+}
+
+"""
+Type representing the payload for a cart.
+"""
+type CartPayload {
+    userId: ID!
+    productId: ID!
+    quantity: Int!
+    unitPrice: Float!
+    subTotal: Float!
+    total: Float!
+}
+
+"""
+Type representing the payload for cart items.
+"""
+type CartItemPayload {
+    items: [CartPayload!]!
+    subTotal: Float!
+    total: Float!
+}
+
+"""
+Input type for creating a cart item.
+"""
+input CreateCartItemInput {
+    productId: ID!
+    quantity: Int!
+}
+
+"""
+Query type for cart items.
+"""
+type Query {
+    getCartItems: CartItemPayload! # To see items
+}
+
+"""
+Mutation type for cart items.
+"""
+type mutation {
+    addCartItem(input: CreateCartItemInput!): CartPayload!
+    updateProductQuantity(input: CreateCartItemInput): CartPayload!
+    removeCartItem(productId: ID!): Boolean!
+}

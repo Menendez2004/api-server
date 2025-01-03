@@ -1,0 +1,104 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type ImagesTypes {
+  id: ID!
+  productId: String!
+  imageUrl: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type CategoriesClass {
+  id: ID!
+  name: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type CreateProductsRes {
+  id: ID!
+  name: String!
+  CreatedAt: String!
+}
+
+type DeletedProductsRes {
+  deletedAt: String!
+}
+
+type PaginationMeta {
+  totalItems: Int!
+  totalPages: Int!
+  limit: Int!
+  page: Int!
+}
+
+type ProductType {
+  id: String!
+  name: String!
+  price: Float!
+  description: String!
+  stock: Float!
+  isAvailable: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ProductsPagination {
+  collection: [ProductType!]!
+  meta: PaginationMeta!
+}
+
+type Query {
+  findAllProducts(filters: ProductFiltersInput, sortBy: SortingProductInput, pagination: PaginationInput): ProductsPagination!
+}
+
+input ProductFiltersInput {
+  name: String
+  price: String
+  categoryId: Float
+  isAvailable: Float
+}
+
+input SortingProductInput {
+  field: ProductSortableField! = NAME
+  order: SortOrder! = ASC
+}
+
+enum ProductSortableField {
+  NAME
+  CREATED_AT
+  UPDATED_AT
+  LIKES_COUNT
+  PRICE
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+input PaginationInput {
+  page: Int = 1
+  limit: Int = 20
+}
+
+type Mutation {
+  createProduct(data: CreateProductInput!): CreateProductsRes!
+  removeProduct(id: String!): DeletedProductsRes!
+}
+
+input CreateProductInput {
+  name: String!
+  description: String!
+  price: Int!
+  categoryId: [Int!]!
+  stock: Int!
+  isAvailable: Boolean! = true
+}
