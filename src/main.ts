@@ -2,16 +2,15 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
-import { globalFilterException } from './helpers/globalFilterException';
-
+import { GlobalExceptionFilter } from 'src/helpers/filters/global.exception.filter';
 
 
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.useGlobalFilters(new globalFilterException());
-console.log( process.env.JWT_SECRET);
-
+  app.useGlobalFilters(new GlobalExceptionFilter());
+  
+  app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,
