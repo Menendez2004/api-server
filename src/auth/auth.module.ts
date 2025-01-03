@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
 import { UsersModule } from 'src/users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { LocalPassportStrategy } from './strategies/local.passport.strategy';
@@ -18,7 +17,7 @@ import { ConfigurationService } from 'src/helpers/configuration/configuration.se
       useFactory: async (configService: ConfigurationService) => {
         return{
           secret: configService.jwtSecret,
-          signOptions: { expiresIn: '1h' },
+          signOptions: { expiresIn: configService.jwtExpiration },
         };
       },
       inject: [ConfigurationService]
