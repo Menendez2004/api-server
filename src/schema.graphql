@@ -2,10 +2,9 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type ImagesTypes {
+type CategoriesClass {
   id: ID!
-  productId: String!
-  imageUrl: String!
+  name: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -15,11 +14,57 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type CategoriesClass {
+type ImagesTypes {
   id: ID!
-  name: String!
+  productId: String!
+  imageUrl: String!
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+type ProductsTypes {
+  id: ID!
+  product_name: String!
+  description: String!
+  stock: Float!
+  is_available: Boolean!
+  unit_price: Float!
+  categories: [CategoriesClass!]!
+  images: [ImagesTypes!]!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type CartItemType {
+  id: ID!
+  product: ProductsTypes!
+  quantity: Float!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type CartType {
+  id: ID!
+  cartItems: [CartItemType!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type RemoveProductCartRes implements RecordDeletion {
+  deleted_at: DateTime!
+}
+
+interface RecordDeletion {
+  deleted_at: DateTime!
+}
+
+type UpdateProductCartRes implements RecordUpdate {
+  updated_at: DateTime!
+  updatedAt: DateTime!
+}
+
+interface RecordUpdate {
+  updated_at: DateTime!
 }
 
 type CreateProductsRes {
@@ -55,7 +100,59 @@ type ProductsPagination {
   meta: PaginationMeta!
 }
 
+type UserRoles {
+  id: ID!
+  role: String!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type User {
+  id: ID!
+  first_name: String!
+  last_name: String!
+  email: String!
+  is_email_verified: Boolean!
+  role_id: Float!
+  address: String!
+  password: String!
+  created_at: DateTime!
+  updated_at: DateTime!
+  role: UserRoles!
+}
+
+type PaymentStatusType {
+  id: ID!
+  status: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PaymentDetailType {
+  id: ID!
+  payment_intent_id: String!
+  payment_method_id: String!
+  order_id: String!
+  amount: Float!
+  status: PaymentStatusType!
+  created_at: DateTime!
+  updated_at: DateTime!
+  payment_date: DateTime!
+}
+
+type OrderDetailType {
+  id: String!
+  order_id: String!
+  product_id: String!
+  quantity: Int!
+  unit_price: Int!
+  created_at: DateTime!
+  updated_at: DateTime!
+  product: ProductsTypes!
+}
+
 type Query {
+  getCarts: CartType!
   findAllProducts(filters: ProductFiltersInput, sortBy: SortingProductInput, pagination: PaginationInput): ProductsPagination!
 }
 
@@ -90,8 +187,21 @@ input PaginationInput {
 }
 
 type Mutation {
+  addOrUpdateCartProduct(data: UpsertCartItemInput!): UpdateProductCartRes!
+  removeProductFromCart(data: RemoveProductFromCartArgs!): RemoveProductCartRes!
   createProduct(data: CreateProductInput!): CreateProductsRes!
   removeProduct(id: String!): DeletedProductsRes!
+}
+
+input UpsertCartItemInput {
+  productId: String!
+  cartId: String!
+  quantity: Int!
+}
+
+input RemoveProductFromCartArgs {
+  productId: String!
+  cartId: String!
 }
 
 input CreateProductInput {

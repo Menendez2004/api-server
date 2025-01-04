@@ -5,7 +5,7 @@ import { PrismaService } from 'src/helpers/prisma/prisma.service';
 import { ValidatorService } from 'src/helpers/service/validator.service';
 import { ProductFiltersInput } from './dto/filters/product.input.filter';
 import { SortingProductInput } from './dto/products.sorting.input';
-import { ProductType } from './interfaces/products.intefaces';
+import { ProductType } from './dto/products.intefaces.dto';
 import { paginate, PaginatedResult } from 'src/helpers/pagination/pagination.helper';
 import { CreateProductInput } from './dto/products.create.input';
 import { CloudinaryService } from 'src/helpers/cloudinary/cloudinary.service';

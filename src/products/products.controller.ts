@@ -55,6 +55,15 @@ export class ProductsController {
                 'Invalid path. Only "/images" is supported.',
             );
         }
+        if (operation === OperationType.ADD && uploadedImages.length === 0) {
+            throw new BadRequestException('No images were uploaded,you need to upload at least one image');
+        }
+        if (operation === OperationType.REMOVE && publicImageId.length === 0) {
+            throw new BadRequestException('No images were selected for deletion');
+        }
+        if( ![OperationType.ADD, OperationType.REMOVE].includes(operation)){
+            throw new BadRequestException('Invalid operation type, you need to choose between ADD or REMOVE');
+        }
     }
 }
 
