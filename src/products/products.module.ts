@@ -7,10 +7,18 @@ import { ConfigurationService } from 'src/helpers/configuration/configuration.se
 import { CloudinaryModule } from 'src/helpers/cloudinary/cloudinary.module';
 import { CloudinaryService } from 'src/helpers/cloudinary/cloudinary.service';
 import { ProductsResolver } from './products.resolver';
+import { ConfigurationModule } from 'src/helpers/configuration/configuration.module';
 
 @Module({
-  imports: [PrismaModule, ValidatorModule, CloudinaryModule ],
-  providers: [ProductsService, ConfigurationService, CloudinaryService, ProductsResolver],
-  controllers: [ProductsController]
+  imports: [
+    PrismaModule,
+    ValidatorModule,
+    ConfigurationModule,
+    CloudinaryModule],
+  providers: [
+    ProductsService,
+    ProductsResolver,],
+  controllers: [ProductsController],
+  exports: [ProductsService]
 })
-export class ProductsModule {}
+export class ProductsModule { }

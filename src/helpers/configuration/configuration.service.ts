@@ -27,4 +27,12 @@ export class ConfigurationService {
     get cloudinaryApiSecret(): string {
         return this.config.get<string>('CLOUDINARY_API_SECRET');
     }
+
+    get stripeSecretKey(): string {
+        return this.config.get<string>('STRIPE_SECRET_KEY');
+    }
+
+    get stripeWebhookSigningSecret(): string {
+        return this.config.get<string>('STRIPE_WEBHOOK_SIGNING_SECRET');
+    }
 }

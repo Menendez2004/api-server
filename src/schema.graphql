@@ -22,6 +22,19 @@ type CategoriesClass {
   updatedAt: DateTime!
 }
 
+type ProductsTypes {
+  id: ID!
+  product_name: String!
+  description: String!
+  stock: Float!
+  is_available: Boolean!
+  unit_price: Float!
+  categories: [CategoriesClass!]!
+  images: [ImagesTypes!]!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
 type CreateProductsRes {
   id: ID!
   name: String!
@@ -53,6 +66,57 @@ type ProductType {
 type ProductsPagination {
   collection: [ProductType!]!
   meta: PaginationMeta!
+}
+
+type UserRoles {
+  id: ID!
+  role: String!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type User {
+  id: ID!
+  first_name: String!
+  last_name: String!
+  email: String!
+  is_email_verified: Boolean!
+  role_id: Float!
+  address: String!
+  password: String!
+  created_at: DateTime!
+  updated_at: DateTime!
+  role: UserRoles!
+}
+
+type PaymentStatusType {
+  id: ID!
+  status: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PaymentDetailType {
+  id: ID!
+  payment_intent_id: String!
+  payment_method_id: String!
+  order_id: String!
+  amount: Float!
+  status: PaymentStatusType!
+  created_at: DateTime!
+  updated_at: DateTime!
+  payment_date: DateTime!
+}
+
+type OrderDetailType {
+  id: String!
+  order_id: String!
+  product_id: String!
+  quantity: Int!
+  unit_price: Int!
+  created_at: DateTime!
+  updated_at: DateTime!
+  product: ProductsTypes!
 }
 
 type Query {

@@ -4,7 +4,9 @@ import { ConfigurationService } from './configuration.service';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-    imports: [ConfigModule.forRoot()],
+    imports: [ConfigModule.forRoot({
+        isGlobal: true,
+    })],
     providers: [ConfigurationService],
     exports: [ConfigurationService],
 })

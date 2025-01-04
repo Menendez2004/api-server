@@ -43,7 +43,7 @@ export class UsersService {
             });
 
             if (!user) {
-                throw new NotFoundException(`imposible to finda a user with id: ${id}`);
+                throw new NotFoundException(`imposible to find  a user with id: ${id}`);
             }
             return user;
         } catch (err) {

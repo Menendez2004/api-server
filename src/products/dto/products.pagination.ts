@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { PaginationMeta } from 'src/helpers/pagination/pagination.meta';
 
-import { ProductType } from '../interfaces/products.intefaces';
+import { ProductType } from './products.intefaces.dto';
 
 @ObjectType()
 export class ProductsPagination {
