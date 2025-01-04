@@ -107,17 +107,16 @@ type UserRoles {
   updated_at: DateTime!
 }
 
-type User {
+type UserClass {
   id: ID!
-  first_name: String!
-  last_name: String!
+  firstName: String!
+  lastName: String!
   email: String!
-  is_email_verified: Boolean!
-  role_id: Float!
+  roleId: Float!
   address: String!
   password: String!
-  created_at: DateTime!
-  updated_at: DateTime!
+  createdAt: DateTime!
+  updatedAt: DateTime!
   role: UserRoles!
 }
 
@@ -142,12 +141,12 @@ type PaymentDetailType {
 
 type OrderDetailType {
   id: String!
-  order_id: String!
-  product_id: String!
+  ordeId: String!
+  productId: String!
   quantity: Int!
-  unit_price: Int!
-  created_at: DateTime!
-  updated_at: DateTime!
+  price: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
   product: ProductsTypes!
 }
 

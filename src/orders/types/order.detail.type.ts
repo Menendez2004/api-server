@@ -8,22 +8,22 @@ export class OrderDetailType {
   id: string;
 
   @Field(() => String)
-  order_id: string;
+  ordeId: string;
 
   @Field(() => String)
-  product_id: string;
+  productId: string;
 
   @Field(() => Int)
   quantity: number;
 
   @Field(() => Int)
-  unit_price: number;
+  price: number;
 
   @Field()
-  created_at: Date;
+  createdAt: Date;
 
   @Field()
-  updated_at: Date;
+  updatedAt: Date;
 
   @Field(() => ProductsTypes)
   @Type(() => ProductsTypes)

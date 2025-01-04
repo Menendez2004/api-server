@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseFilters, Request } from '@nestjs/common';
+import { Controller, Post, Body,Headers, UseFilters, Request, Req } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import { GlobalExceptionFilter } from '../helpers/filters/global.exception.filter';
 import { Auth } from 'src/auth/decorators/auth.roles.decorator';
@@ -8,7 +8,9 @@ import { WebhookReq, AddPaymentReq } from './dto/index.dto';
 @UseFilters(GlobalExceptionFilter)
 @Controller('payments')
 export class PaymentsController {
-    constructor(private readonly paymentService: StripeService) { }
+    constructor(
+        private readonly stripeService: StripeService,
+        private readonly paymentService: StripeService) { }
 
     @Auth('CLIENT')
     @Post()
@@ -20,15 +22,16 @@ export class PaymentsController {
     }
 
     @Post('webhook')
-    async stripeWebhook(@Body() body: any) {
-        const paymentData = {
-            id: body.data.object.id,
-            status: body.data.object.status,
-            amount: body.data.object.amount,
-            paymentMethod: body.data.object.paymentMethod,
-            orderId: body.data.object.metadata?.orderId,
-        };
-        const dataFormatted = plainToInstance(WebhookReq, paymentData);
-        return this.paymentService.handleStripeWebhook(dataFormatted);
+    async stripeWebhook(@Req() req: any, @Headers() headers: any): Promise<void> {
+        const stripeSignature = headers['stripe-signature'];
+        const rawBody = req.rawBody; 
+
+        try {
+
+            await this.stripeService.handleStripeWebhook(rawBody, stripeSignature);
+        } catch (err) {
+            console.error('Stripe webhook handling failed:', err.message);
+            throw err; 
+        }
     }
 }
