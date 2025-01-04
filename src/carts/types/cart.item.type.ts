@@ -13,11 +13,11 @@ export class CartItemType {
     @Field()
     quantity: number;
 
-    @Field(() => Date, { name: 'created_at' })
-    @Expose({ name: 'created_at' })
+    @Field(() => Date, )
+    @Expose()
     createdAt: Date;
 
-    @Field(() => Date, { name: 'updated_at' })
-    @Expose({ name: 'updated_at' })
+    @Field(() => Date)
+    @Expose()
     updatedAt: Date;
 }

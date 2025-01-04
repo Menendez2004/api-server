@@ -2,10 +2,9 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type ImagesTypes {
+type CategoriesClass {
   id: ID!
-  productId: String!
-  imageUrl: String!
+  name: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -15,9 +14,10 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type CategoriesClass {
+type ImagesTypes {
   id: ID!
-  name: String!
+  productId: String!
+  imageUrl: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -32,6 +32,38 @@ type ProductsTypes {
   categories: [CategoriesClass!]!
   images: [ImagesTypes!]!
   created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type CartItemType {
+  id: ID!
+  product: ProductsTypes!
+  quantity: Float!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type CartType {
+  id: ID!
+  cartItems: [CartItemType!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type RemoveProductCartRes implements RecordDeletion {
+  deleted_at: DateTime!
+}
+
+interface RecordDeletion {
+  deleted_at: DateTime!
+}
+
+type UpdateProductCartRes implements RecordUpdate {
+  updated_at: DateTime!
+  updatedAt: DateTime!
+}
+
+interface RecordUpdate {
   updated_at: DateTime!
 }
 
@@ -120,6 +152,7 @@ type OrderDetailType {
 }
 
 type Query {
+  getCarts: CartType!
   findAllProducts(filters: ProductFiltersInput, sortBy: SortingProductInput, pagination: PaginationInput): ProductsPagination!
 }
 
@@ -154,8 +187,21 @@ input PaginationInput {
 }
 
 type Mutation {
+  addOrUpdateCartProduct(data: UpsertCartItemInput!): UpdateProductCartRes!
+  removeProductFromCart(data: RemoveProductFromCartArgs!): RemoveProductCartRes!
   createProduct(data: CreateProductInput!): CreateProductsRes!
   removeProduct(id: String!): DeletedProductsRes!
+}
+
+input UpsertCartItemInput {
+  productId: String!
+  cartId: String!
+  quantity: Int!
+}
+
+input RemoveProductFromCartArgs {
+  productId: String!
+  cartId: String!
 }
 
 input CreateProductInput {
