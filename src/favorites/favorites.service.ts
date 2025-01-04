@@ -10,11 +10,11 @@ import {RemoveFavoriteRes, AddFavoriteRes} from './dto/res/index.favorites.res'
 export class FavoritesService {
     constructor(private readonly prismaService: PrismaService) { }
 
-    async checkOrUncheckAsFavorite(
+    async toggleFavoriteStatus (
         userId: string,
         productId: string,
     ): Promise<AddFavoriteRes | RemoveFavoriteRes> {
-        const existingFavorite = await this.prismaService.favorites.findUnique({
+        const foundFavorite  = await this.prismaService.favorites.findUnique({
             where: {
                 userId_productId: {
                     userId,
@@ -23,8 +23,8 @@ export class FavoritesService {
             },
         });
 
-        if (existingFavorite) {
-            await this.removeFavorite(existingFavorite.id);
+        if (foundFavorite ) {
+            await this.removeFavorite(foundFavorite .id);
             return this.createRemoveFavoriteResponse();
         }
 
@@ -32,7 +32,7 @@ export class FavoritesService {
         return plainToInstance(AddFavoriteRes, newFavorite);
     }
 
-    async getFavoritesOwns(userId: string): Promise<FavoriteType[]> {
+    async getUserFavorites(userId: string): Promise<FavoriteType[]> {
         const favorites = await this.prismaService.favorites.findMany({
             where: { userId },
             include: {
@@ -47,10 +47,10 @@ export class FavoritesService {
 
         const favoriteTypes = favorites.map((favorite) => {
             const product = favorite.product;
-            const productType = plainToInstance(ProductsTypes, product);
+            const transformedFavorites = plainToInstance(ProductsTypes, product);
             return {
                 ...favorite,
-                product: productType,
+                product: transformedFavorites,
             };
         });
 

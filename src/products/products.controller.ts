@@ -34,7 +34,7 @@ export class ProductsController {
 
         if (updateImage.operation === OperationType.ADD) {
             for (const uploadedImage of images) {
-                await this.productSevice.uploadImage(productId, uploadedImage);
+                await this.productSevice.uploadProductImage(productId, uploadedImage);
             }
         } else if (updateImage.operation === OperationType.REMOVE) {
             for (const publicImage of updateImage.publicImageId) {
