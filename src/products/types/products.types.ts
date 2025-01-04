@@ -9,7 +9,7 @@ export class ProductsTypes {
     id: string;
 
     @Field()
-    product_name: string;
+    name: string;
 
     @Field()
     description: string;
@@ -18,10 +18,10 @@ export class ProductsTypes {
     stock: number;
 
     @Field()
-    is_available: boolean;
+    isAvailable: boolean;
 
     @Field()
-    unit_price: number;
+    price: number;
 
     @Field(() => [CategoriesClass])
     @Type(() => CategoriesClass)
@@ -31,8 +31,8 @@ export class ProductsTypes {
     images: ImagesTypes[];
 
     @Field()
-    created_at: Date;
+    createdAt: Date;
 
     @Field()
-    updated_at: Date;
+    updatedAt: Date;
 }
