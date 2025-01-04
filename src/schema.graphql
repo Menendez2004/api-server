@@ -24,15 +24,15 @@ type ImagesTypes {
 
 type ProductsTypes {
   id: ID!
-  product_name: String!
+  name: String!
   description: String!
   stock: Float!
-  is_available: Boolean!
-  unit_price: Float!
+  isAvailable: Boolean!
+  price: Float!
   categories: [CategoriesClass!]!
   images: [ImagesTypes!]!
-  created_at: DateTime!
-  updated_at: DateTime!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 type CartItemType {
