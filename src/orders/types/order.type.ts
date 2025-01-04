@@ -9,19 +9,16 @@ export class OrderType {
   id: string;
 
   @Field(() => String)
-  user_id: string;
+  userId: string;
 
   @Field(() => String)
   address: string;
 
-  @Field(() => String)
-  nearby_landmark: string;
+  @Field(() => Date)
+  createdAt: Date;
 
   @Field(() => Date)
-  created_at: Date;
-
-  @Field(() => Date)
-  updated_at: Date;
+  updatedAt: Date;
 
   @Field(() => UserClass)
   user?: UserClass | null;
