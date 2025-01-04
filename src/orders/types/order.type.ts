@@ -1,6 +1,6 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { OrderDetailType } from './index.types';
-import { User } from '../../users/model/index.model';
+import { UserClass } from 'src/users/classes/user.classes';
 import { PaymentDetailType } from '../../payments/types/index.type';
 
 @ObjectType()
@@ -23,8 +23,8 @@ export class OrderType {
   @Field(() => Date)
   updated_at: Date;
 
-  @Field(() => User)
-  user?: User | null;
+  @Field(() => UserClass)
+  user?: UserClass | null;
 
   @Field(() => [OrderDetailType!])
   orderDetails: OrderDetailType[];

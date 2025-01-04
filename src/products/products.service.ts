@@ -92,11 +92,11 @@ export class ProductsService {
                 price: data.price,
             },
         });
-        await this.createProductCategory(categoryId, product.id);
+        await this.associateProductWithCategories(categoryId, product.id);
         return product;
     }
 
-    async createProductCategory(
+    async associateProductWithCategories(
         categories: number[],
         productId: string,
     ): Promise<void> {
@@ -110,17 +110,17 @@ export class ProductsService {
         });
     }
 
-    async uploadImage(producId: string, file: Express.Multer.File): Promise<ProductImages> {
+    async uploadProductImage(producId: string, file: Express.Multer.File): Promise<ProductImages> {
         await this.validatorService.findOneProductById({ id: producId });
-        const upload = await this.cloudinaryService.uploadFile(file);
+        const uploadedFile = await this.cloudinaryService.uploadFile(file);
 
-        const dataImage: Prisma.ProductImagesCreateInput = {
+        const imageCreationData: Prisma.ProductImagesCreateInput = {
             id: producId,
-            imageUrl: upload.secure_url,
-            publicId: upload.public_id,
+            imageUrl: uploadedFile.secure_url,
+            publicId: uploadedFile.public_id,
             product: { connect: { id: producId } }
         }
-        return this.addProductsImages(dataImage);
+        return this.addProductsImages(imageCreationData);
     }
 
     async addProductsImages(data: Prisma.ProductImagesCreateInput): Promise<ProductImages> {
@@ -129,18 +129,18 @@ export class ProductsService {
     }
 
     async getProductImages(productId: string): Promise<ImagesTypes[]> {
-        const imagesProduct = await this.prismaService.productImages.findMany({
+        const productImages = await this.prismaService.productImages.findMany({
             where: {
                 productId,
             },
         });
-        return imagesProduct.map((images) => {
+        return productImages.map((images) => {
             return plainToInstance(ImagesTypes, images);
         })
     }
 
 
-    async updateImageProduct(data: UpdateProductInput): Promise<ProductImages> {
+    async updateProductImageCategories(data: UpdateProductInput): Promise<ProductImages> {
         await this.validatorService.findProductExitence(data.id);
         const dataCategory = data.categories.map((categoryId) => ({
             categoryId,
@@ -161,12 +161,12 @@ export class ProductsService {
                 },
             });
         }
-        return this.updateImageProduct(data);
+        return this.updateProductImageCategories(data);
     }
 
     async removeProduct(id: string): Promise<void> {
         await this.validatorService.findProductExitence(id);
-        const ProductImage = await this.prismaService.productImages.findMany({
+        const productImageRecords = await this.prismaService.productImages.findMany({
             where: {
                 productId: id,
             },
@@ -174,8 +174,8 @@ export class ProductsService {
                 publicId: true,
             },
         });
-        if (ProductImage.length >= 1) {
-            ProductImage.forEach(async (publicId) => {
+        if (productImageRecords.length >= 1) {
+            productImageRecords.forEach(async (publicId) => {
                 await this.prismaService.productImages.delete({
                     where: { publicId: publicId.publicId },
                 });
@@ -195,7 +195,7 @@ export class ProductsService {
         return { result: response.result };
     }
 
-    async getproductPrice(productId: string): Promise<number> {
+    async getProductPrice(productId: string): Promise<number> {
         const product = await this.prismaService.products.findUnique({
             where: {
                 id: productId,

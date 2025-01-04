@@ -23,30 +23,30 @@ export class OrdersService {
     ) { }
 
     async addOrder(userId: string, args: NewOrderArg): Promise<NewOrderRecord> {
-        const cart = await this.validateCartOwnership(userId, args.cartId);
-        const cartItems = await this.validateCartItems(args.cartId);
+        const userCart = await this.verifyCartOwnership(userId, args.cartId);
+        const validatedCartItems  = await this.validateCartItems(args.cartId);
 
-        const order = await this.createOrder(args, cart.userId);
-        await this.createOrderDetails(order.id, cartItems);
+        const createdOrder  = await this.createOrder(args, userCart.userId);
+        await this.createOrderDetails(createdOrder.id, validatedCartItems );
         await this.cartService.clearCartItems(args.cartId);
 
-        return plainToInstance(NewOrderRecord, order);
+        return plainToInstance(NewOrderRecord, createdOrder );
     }
 
     async getOrderById(
         orderId: string,
         user: { id: string; role: RoleName },
     ): Promise<OrderType> {
-        const order = await this.fetchOrderWithDetails(orderId);
+        const order = await this.getOrderWithDetails(orderId);
         if (user.role === RoleName.CLIENT) {
             if (order.userId !== user.id) {
-                throw new NotAcceptableException('Unauthorized to access this order');
+                throw new NotAcceptableException('You do not have permission to access this cart.');
             }
         }
         return plainToInstance(OrderType, order);
     }
 
-    private async validateCartOwnership(userId: string, cartId: string) {
+    private async verifyCartOwnership(userId: string, cartId: string) {
         const cart = await this.cartService.findCartById(cartId);
         if (cart.userId !== userId) {
             throw new NotAcceptableException('Unauthorized to access this cart');
@@ -73,20 +73,20 @@ export class OrdersService {
         });
     }
 
-    private async createOrderDetails(orderId: string, cartItems: any[]) {
-        const orderDetails = cartItems.map(async (item) => ({
+    private async createOrderDetails(orderId: string, cartItems: { productId: string; quantity: number }[]) {
+        const orderDetailsData = cartItems.map(async (item) => ({
             orderId,
             productId: item.productId,
             quantity: item.quantity,
-            price: await this.productsService.getproductPrice(item.productId),
+            price: await this.productsService.getProductPrice(item.productId),
         }));
 
         return this.prismaService.orderDetails.createMany({
-            data: await Promise.all(orderDetails),
+            data: await Promise.all(orderDetailsData),
         });
     }
 
-    private async fetchOrderWithDetails(orderId: string) {
+    private async getOrderWithDetails(orderId: string) {
         const order = await this.prismaService.orders.findUnique({
             where: { id: orderId },
             include: {

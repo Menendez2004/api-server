@@ -1,17 +1,16 @@
 import { Field, ObjectType, ID } from '@nestjs/graphql';
-import { Expose } from 'class-transformer';
 
 @ObjectType()
 export class CategoriesClass {
     @Field(() => ID)
     id: number;
 
-    @Field({ name: 'name' })
+    @Field()
     name: string;
 
-    @Field({ name: 'createdAt' })
-    created_at: Date;
+    @Field()
+    createdAt: Date;
 
-    @Field({ name: 'updatedAt' })
-    updated_at: Date;
+    @Field()
+    updatedAt: Date;
 }
