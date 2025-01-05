@@ -59,7 +59,7 @@
 
 ## Description
 
-Shoes-API is a **full-stack educational project** designed to demonstrate modern technologies, best practices, and design patterns in software development. It showcases a complete workflow from backend to frontend, using industry-standard tools and frameworks.
+Shoes-API is a **nodeJs/NestJseducational project** designed to demonstrate modern technologies, best practices, and design patterns in software development. It showcases a complete workflow from backend to frontend, using industry-standard tools and frameworks.
 
 ## Technologies Used
 
@@ -186,6 +186,37 @@ Look for the `"IPAddress": "your_corresponding_IP"` and note it down.
    ```
 
 
+### Use loged features
+If you want to use the routes for clients you need to do the following:
+- Open your favorite app to test APIs (like postman or insomnia) 
+
+1. define your base Url or put the local post you are working on directly:
+- ![baseUrl](images.readme/baseUrl.png)
+
+and add this into the body:
+```json
+{
+	"firstName": "testing",
+	"lastName": "test",
+	"userName": "testing",
+	"address": "street test1",
+	"email":"test8@gmail.com",
+	"password":"test"
+}
+(changes variables)
+```
+2. you gonna recieve something like this: 
+- ![.env](images.readme/sigUp.png)
+
+3. login
+- ![login](images.readme/login.png)
+- copy the acces token an put it on the auth (bearer)
+- ![auth](images.readme/auth.png)
+- now, you´re available to acces to the client routes
+
+### note
+if you want to acces to manager routes you need to run the seed and do the login with the credentials
+![seed](images.readme/seed.png)
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
