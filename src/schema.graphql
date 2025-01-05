@@ -100,6 +100,25 @@ type ProductsPagination {
   meta: PaginationMeta!
 }
 
+type FavoriteType {
+  id: ID!
+  userId: String!
+  productId: String!
+  product: ProductsTypes!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type NewOrderRecordRes implements NewRecordInfo {
+  id: ID!
+  createdAt: DateTime!
+}
+
+interface NewRecordInfo {
+  id: ID!
+  createdAt: DateTime!
+}
+
 type UserRoles {
   id: ID!
   role: String!
@@ -139,6 +158,17 @@ type PaymentDetailType {
   payment_date: DateTime!
 }
 
+type OrderType {
+  id: ID!
+  userId: String!
+  address: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  user: UserClass!
+  orderDetails: [OrderDetailType!]!
+  paymentDetail: PaymentDetailType!
+}
+
 type OrderDetailType {
   id: String!
   ordeId: String!
@@ -153,6 +183,8 @@ type OrderDetailType {
 type Query {
   getCarts: CartType!
   findAllProducts(filters: ProductFiltersInput, sortBy: SortingProductInput, pagination: PaginationInput): ProductsPagination!
+  getFavorites: [FavoriteType!]!
+  getOrderById(orderData: GetOrderArg!): OrderType!
 }
 
 input ProductFiltersInput {
@@ -185,11 +217,19 @@ input PaginationInput {
   limit: Int = 20
 }
 
+input GetOrderArg {
+  orderId: ID!
+}
+
 type Mutation {
   addOrUpdateCartProduct(data: UpsertCartItemInput!): UpdateProductCartRes!
   removeProductFromCart(data: RemoveProductFromCartArgs!): RemoveProductCartRes!
   createProduct(data: CreateProductInput!): CreateProductsRes!
   removeProduct(id: String!): DeletedProductsRes!
+
+  """Toggle the favorite status of a product for the authenticated user"""
+  upsertFavorite(input: UpserFavoriteArgs!): FavoriteResponse!
+  createOrder(newOrderData: NewOrderArg!): NewOrderRecordRes!
 }
 
 input UpsertCartItemInput {
@@ -210,4 +250,28 @@ input CreateProductInput {
   categoryId: [Int!]!
   stock: Int!
   isAvailable: Boolean! = true
+}
+
+"""
+Represents the result of a favorite product action, either adding or removing a favorite.
+"""
+union FavoriteResponse = AddFavoriteRes | RemoveFavoriteRes
+
+type AddFavoriteRes implements NewRecordInfo {
+  id: ID!
+  createdAt: DateTime!
+}
+
+type RemoveFavoriteRes implements RecordDeletion {
+  deleted_at: DateTime!
+  deletedAt: DateTime!
+}
+
+input UpserFavoriteArgs {
+  productId: ID!
+}
+
+input NewOrderArg {
+  cartId: ID!
+  address: String
 }

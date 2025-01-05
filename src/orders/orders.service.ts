@@ -4,14 +4,18 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../helpers/prisma/prisma.service';
-import {  NewOrderRecord } from './dto/res/index.res';
+import { NewOrderRecordRes } from './dto/res/index.res';
 import { CartsService } from '../carts/carts.service';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
 import { plainToInstance } from 'class-transformer';
-import {  NewOrderArg } from './dto/args/index.arg';
+import { NewOrderArg } from './dto/args/index.arg';
 import { OrderType } from './types/index.types';
 import { RoleName } from '@prisma/client';
+import { PaginationInput, PaginatedResult, PaginationMeta, paginate } from 'src/helpers/pagination/index.pagination';
+import { OrderStatus } from 'src/helpers/enums/sort.order.enum';
+import { OrderPagination } from './types/order.pagination.types';
+import { fileURLToPath } from 'url';
 
 @Injectable()
 export class OrdersService {
@@ -22,15 +26,15 @@ export class OrdersService {
         private readonly productsService: ProductsService,
     ) { }
 
-    async addOrder(userId: string, args: NewOrderArg): Promise<NewOrderRecord> {
+    async addOrder(userId: string, args: NewOrderArg): Promise<NewOrderRecordRes> {
         const userCart = await this.verifyCartOwnership(userId, args.cartId);
-        const validatedCartItems  = await this.validateCartItems(args.cartId);
+        const validatedCartItems = await this.validateCartItems(args.cartId);
 
-        const createdOrder  = await this.createOrder(args, userCart.userId);
-        await this.createOrderDetails(createdOrder.id, validatedCartItems );
+        const createdOrder = await this.createOrder(args, userCart.userId);
+        await this.createOrderDetails(createdOrder.id, validatedCartItems);
         await this.cartService.clearCartItems(args.cartId);
 
-        return plainToInstance(NewOrderRecord, createdOrder );
+        return plainToInstance(NewOrderRecordRes, createdOrder);
     }
 
     async getOrderById(
@@ -115,4 +119,7 @@ export class OrdersService {
 
         return order;
     }
+
+
+
 }

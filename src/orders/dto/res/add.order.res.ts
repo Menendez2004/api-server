@@ -5,7 +5,7 @@ import { Expose } from 'class-transformer';
 @ObjectType({
   implements: () => [NewRecordInfo],
 })
-export class NewOrderRecord implements NewRecordInfo {
+export class NewOrderRecordRes implements NewRecordInfo {
   @Field(() => ID!)
   id: string;
 

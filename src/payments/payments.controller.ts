@@ -1,8 +1,7 @@
 import { Controller, Post, Body,Headers, UseFilters, Request, Req } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import { GlobalExceptionFilter } from '../helpers/filters/global.exception.filter';
-import { Auth } from 'src/auth/decorators/auth.roles.decorator';
-import { plainToInstance } from 'class-transformer';
+import { AuthRole } from 'src/auth/decorators/auth.roles.decorator';
 import { WebhookReq, AddPaymentReq } from './dto/index.dto';
 
 @UseFilters(GlobalExceptionFilter)
@@ -12,7 +11,7 @@ export class PaymentsController {
         private readonly stripeService: StripeService,
         private readonly paymentService: StripeService) { }
 
-    @Auth('CLIENT')
+    @AuthRole('CLIENT')
     @Post()
     async createPayment(
         @Body() req: AddPaymentReq,

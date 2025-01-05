@@ -4,7 +4,7 @@ import { UsersService } from 'src/users/users.service';
 import { AuthLocal } from './decorators/auth.local.decorator';
 import { LoginRequestDto } from './dto/request/signIn.req';
 import { Response } from 'express';
-import { Auth } from './decorators/auth.roles.decorator';
+import { AuthRole } from './decorators/auth.roles.decorator';
 
 
 @Controller('auth')
@@ -31,7 +31,7 @@ export class AuthController {
     }
 
     @Post('/signout')
-    @Auth('MANAGER', 'CLIENT')
+    @AuthRole('MANAGER', 'CLIENT')
     async logout(@Res() res: Response) {
         res.clearCookie('access_token').send('Logged out ✅️');
     }

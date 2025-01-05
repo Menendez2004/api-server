@@ -5,7 +5,6 @@ import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 @InputType()
 export class UpserFavoriteArgs {
   @Field(() => ID!)
-  @Expose()
   @IsString()
   @IsNotEmpty()
   @IsUUID('4', )
