@@ -1,12 +1,18 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UseFilters } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException, UseFilters } from '@nestjs/common';
 import { PrismaService } from 'src/helpers/prisma/prisma.service';
 import { Prisma, Users, UserRoles } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { TokenService } from 'src/token/token.service';
+import { GlobalExceptionFilter } from 'src/helpers/filters/global.exception.filter';
 
 
 @Injectable()
+@UseFilters(new GlobalExceptionFilter())
 export class UsersService {
-    constructor(private readonly prismaService: PrismaService) { }
+    private readonly  logger = new Logger(UsersService.name);
+    constructor(
+        private readonly tokenService: TokenService,
+        private readonly prismaService: PrismaService) { }
 
     async createUser(data: Prisma.UsersCreateInput): Promise<Users> {
         try {
@@ -75,5 +81,33 @@ export class UsersService {
         }
     }
 
+    async resetPass(
+        verificationToken: string,
+        newHashedPas: string,
+    ): Promise<boolean> {
+        try {
+            const token = await this.tokenService.findAuthToken(verificationToken);
+
+            await this.prismaService.users.update({
+                where: { id: token.userId },
+                data: { password: newHashedPas },
+            })
+            this.logger.log(`Password reset for user ID ${token.userId}`);
+
+            await this.consumedToken(token.id);
+            return true;
+        } catch (err) {
+            this.logger.error(`Error resetting password: ${err.message}`);
+            throw new InternalServerErrorException('Failed to reset password');
+            
+        }
+    }
+
+    private async consumedToken(tokenId: string): Promise<void> {
+        await this.prismaService.verificationTokens.update({
+            where: { id: tokenId },
+            data: { consumed: true },
+        })
+    }
 
 }

@@ -11,14 +11,6 @@ export default async (
                 tokenName: TokenType.resetPassword
             },
             update: {},
-        }),
-        prisma.tokenTypes.upsert({
-            where: {id: 2},
-            create: {
-                id: 2,
-                tokenName: TokenType.resetPassword,
-            },
-            update: {},
         })
     ]);
 };
