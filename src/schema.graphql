@@ -100,6 +100,16 @@ type ProductsPagination {
   meta: PaginationMeta!
 }
 
+type NewOrderRecordRes implements NewRecordInfo {
+  id: ID!
+  createdAt: DateTime!
+}
+
+interface NewRecordInfo {
+  id: ID!
+  createdAt: DateTime!
+}
+
 type UserRoles {
   id: ID!
   role: String!
@@ -190,6 +200,7 @@ type Mutation {
   removeProductFromCart(data: RemoveProductFromCartArgs!): RemoveProductCartRes!
   createProduct(data: CreateProductInput!): CreateProductsRes!
   removeProduct(id: String!): DeletedProductsRes!
+  createOrder(newOrderData: NewOrderArg!): NewOrderRecordRes!
 }
 
 input UpsertCartItemInput {
@@ -210,4 +221,9 @@ input CreateProductInput {
   categoryId: [Int!]!
   stock: Int!
   isAvailable: Boolean! = true
+}
+
+input NewOrderArg {
+  cartId: ID!
+  address: String
 }

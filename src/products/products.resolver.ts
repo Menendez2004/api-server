@@ -9,7 +9,7 @@ import {
 } from '@nestjs/graphql';
 import { ProductsTypes } from './types/products.types';
 import { ProductsService } from './products.service';
-import { Auth } from 'src/auth/decorators/auth.roles.decorator';
+import { AuthRole } from 'src/auth/decorators/auth.roles.decorator';
 import { CreateProductsRes } from './res/products.create.res';
 import { GlobalExceptionFilter } from 'src/helpers/filters/global.exception.filter';
 import { CreateProductInput } from './dto/products.create.input';
@@ -25,7 +25,7 @@ export class ProductsResolver {
 
     constructor(private readonly productsService: ProductsService) { }
 
-    @Auth('MANAGER')
+    @AuthRole('MANAGER')
     @Mutation(() => CreateProductsRes )
     @UseFilters( new GlobalExceptionFilter())
     async createProduct(@Args('data') data: CreateProductInput): Promise<CreateProductsRes> {
@@ -33,7 +33,7 @@ export class ProductsResolver {
         return plainToInstance(CreateProductsRes, product);
     }
 
-    @Auth('MANAGER')
+    @AuthRole('MANAGER')
     @Mutation(() => DeletedProductsRes)
     @UseFilters( new GlobalExceptionFilter())
     async removeProduct(@Args('id') id: string): Promise<DeletedProductsRes> {

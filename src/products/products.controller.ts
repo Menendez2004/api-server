@@ -10,7 +10,7 @@ import {
     UseInterceptors,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { Auth } from 'src/auth/decorators/auth.roles.decorator';
+import { AuthRole } from 'src/auth/decorators/auth.roles.decorator';
 import { GlobalExceptionFilter } from 'src/helpers/filters/global.exception.filter';
 import { UpdateProductImagesArgs } from './dto/args/update.product.imageArg';
 import { FilesInterceptor } from '@nestjs/platform-express';
@@ -20,7 +20,7 @@ import { OperationType } from 'src/helpers/enums/operation.type.enum';
 export class ProductsController {
     constructor(private readonly productSevice: ProductsService) { }
 
-    @Auth('MANAGER')
+    @AuthRole('MANAGER')
     @Patch(':productId/Images')
     @HttpCode(HttpStatus.NO_CONTENT)
     @UseFilters(new GlobalExceptionFilter())

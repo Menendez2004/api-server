@@ -8,7 +8,7 @@ import {
     Resolver,
 } from '@nestjs/graphql';
 import { CartsService } from './carts.service';
-import { Auth } from 'src/auth/decorators/auth.roles.decorator';
+import { AuthRole } from 'src/auth/decorators/auth.roles.decorator';
 import { UseFilters } from '@nestjs/common';
 import { GlobalExceptionFilter } from '../helpers/filters/global.exception.filter';
 import { UpsertCartItemInput } from './dto/args/index.arg';
@@ -22,7 +22,7 @@ import { CartItemType } from './types/cart.item.type';
 export class CartsResolver {
     constructor(private readonly cartsService: CartsService) { }
 
-    @Auth('CLIENT')
+    @AuthRole('CLIENT')
     @Mutation(() => UpdateProductCartRes)
     async addOrUpdateCartProduct(
         @Args('data') data: UpsertCartItemInput,
@@ -32,7 +32,7 @@ export class CartsResolver {
         return this.cartsService.addProductToCart(userId, data);
     }
 
-    @Auth('CLIENT')
+    @AuthRole('CLIENT')
     @Mutation(() => RemoveProductCartRes)
     async removeProductFromCart(
         @Args('data') data: RemoveProductFromCartArgs,
@@ -42,7 +42,7 @@ export class CartsResolver {
         return this.cartsService.deleteProductFromCart(userId, data);
     }
 
-    @Auth('CLIENT')
+    @AuthRole('CLIENT')
     @Query(() => CartType)
     async getCarts(@Context('request') req: any): Promise<CartType> {
         const userId = req.user.id;

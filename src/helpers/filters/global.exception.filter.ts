@@ -7,7 +7,7 @@ import {
     Logger,
     ContextType,
 } from '@nestjs/common';
-import { GqlArgumentsHost  } from '@nestjs/graphql';
+import { GqlArgumentsHost } from '@nestjs/graphql';
 import { Request, Response } from 'express';
 import { GraphQLError } from 'graphql';
 
@@ -24,7 +24,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             this.handleHttpException(exception, host);
         } else {
             this.logger.error(
-                `Unhandled exception in context type ${contextType}: ${exception}`,
+                `Unhandled exception in context type ${contextType}: ${this.extractErrorMessage(exception)}`,
             );
         }
     }
@@ -33,18 +33,16 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         const gqlHost = GqlArgumentsHost.create(host);
         const info = gqlHost.getInfo();
 
-        const errorMessage = this.extractErrorMessage(exception);
-        const errorStack = this.extractErrorStack(exception);
-        const status = this.extractHttpStatus(exception);
+        const { message, stack, status, code } = this.extractErrorDetails(exception);
 
         this.logger.error(
-            `GraphQL Exception in query "${info.fieldName}": ${errorMessage}`,
-            errorStack,
+            `GraphQL Exception in query "${info.fieldName}": ${message}`,
+            stack,
         );
 
-        throw new GraphQLError(errorMessage, {
+        throw new GraphQLError(message, {
             extensions: {
-                code: this.extractErrorCode(exception) || 'InternalServerError',
+                code: code || 'InternalServerError',
                 date: new Date().toISOString(),
                 status,
             },
@@ -56,21 +54,19 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         const response = ctx.getResponse<Response>();
         const request = ctx.getRequest<Request>();
 
-        const errorMessage = this.extractErrorMessage(exception);
-        const errorStack = this.extractErrorStack(exception);
-        const status = this.extractHttpStatus(exception);
+        const { message, stack, status, code } = this.extractErrorDetails(exception);
 
         this.logger.error(
-            `HTTP Exception for ${request.method} ${request.url}: ${errorMessage}`,
-            errorStack,
+            `HTTP Exception for ${request.method} ${request.url}: ${message}`,
+            stack,
         );
 
         response.status(status).json({
             errors: [
                 {
-                    message: errorMessage,
+                    message,
                     extensions: {
-                        code: this.extractErrorCode(exception) || 'InternalServerError',
+                        code: code || 'InternalServerError',
                         date: new Date().toISOString(),
                         status,
                         path: request.url,
@@ -79,6 +75,19 @@ export class GlobalExceptionFilter implements ExceptionFilter {
                 },
             ],
         });
+    }
+
+    private extractErrorDetails(exception: unknown): {
+        message: string;
+        stack?: string;
+        status: number;
+        code?: string;
+    } {
+        const message = this.extractErrorMessage(exception);
+        const stack = this.extractErrorStack(exception);
+        const status = this.extractHttpStatus(exception);
+        const code = this.extractErrorCode(exception);
+        return { message, stack, status, code };
     }
 
     private extractErrorMessage(exception: unknown): string {
