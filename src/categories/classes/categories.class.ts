@@ -1,4 +1,5 @@
 import { Field, ObjectType, ID } from '@nestjs/graphql';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 @ObjectType()
 export class CategoriesClass {
@@ -6,6 +7,8 @@ export class CategoriesClass {
     id: number;
 
     @Field()
+    @IsNotEmpty()
+    @IsString()
     name: string;
 
     @Field()
