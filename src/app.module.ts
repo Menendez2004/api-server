@@ -16,6 +16,7 @@ import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
 import { ValidatorModule } from './helpers/service/validator.module';
 import { GraphqlModule } from './graphql.module';
+import { TokenModule } from './token/token.module';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { GraphqlModule } from './graphql.module';
     ProductsModule,
     ValidatorModule,
     GraphqlModule,
-    ProductsModule
+    ProductsModule,
+    TokenModule
   ],
   controllers: [UsersController,AuthController],
   providers: [

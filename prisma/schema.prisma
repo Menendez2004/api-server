@@ -59,6 +59,7 @@ model VerificationTokens {
     token       String   @unique
     userId      String
     tokenTypeId Int
+    consumed    Boolean  
     expiredAt   DateTime
     createdAt   DateTime @default(now())
     updatedAt   DateTime @default(now()) @updatedAt
