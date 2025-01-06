@@ -191,7 +191,7 @@ input ProductFiltersInput {
   name: String
   price: String
   categoryId: Float
-  isAvailable: Float
+  isAvailable: Boolean
 }
 
 input SortingProductInput {

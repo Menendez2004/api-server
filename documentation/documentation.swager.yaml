@@ -1,0 +1,1625 @@
+openapi: 3.0.0
+info:
+  title: Menendez shoes API
+  description: The Shoe E-commerce API is a comprehensive solution for managing a footwear catalog and facilitating online transactions. Designed for shoe stores, this API enables efficient handling of products, stock control, order processing, and user management
+  contact: 
+    name: kevin menendez
+    url: https://github.com/Menendez2004
+  version: 1.0.0
+
+
+servers:
+  - url: https://{environment}.example.com/api
+    variables:
+      environment:
+        default: staging
+        enum:
+          - staging
+          - production
+          - development
+
+tags:
+  - name: Auths
+    description: Endpoints for user `authentication`, including login, registration, and token management for accessing the E-commerce platform.
+  - name: Users
+    description: Endpoints for `managing user-related operations`, including profile retrieval, updates, and user status change.
+  - name: Products
+    description: Endpoints for `managing and retrieving` information about `products` available in the E-commerce platform.
+  - name: Favorite Products
+    description: Endpoints for managing and viewing a `user's favorite products` within the E-commerce platform.
+  - name: Emails Senders
+    description: These endpoints `handle` the process of `notifying users` via `email` when products they have previously liked or favorited are nearing `out-of-stock` status.
+  - name: Categories
+    description: Endpoints for `managing and retrieving product categories` available in the E-commerce platform.
+  - name: Orders
+    description: Endpoints for `managing user orders` , including order creation, retrieval  , and status updates.
+  - name: Payments
+    description: API endpoints for managing client user `payments` creating charges, processing refunds, retrieving transaction history, and managing stored payment methods (e.g., credit cards).
+
+
+
+paths:
+  /v1/auth/sign-in:
+    post:
+      tags:
+        - Auths
+      summary: Authenticates a user for accessing protected resources.
+      description: This endpoint verifies the user's credentials `(email and password)` and, if valid, generates a token that grants access to the system's secure areas. This token should be used for subsequent requests that require authentication.
+      security: 
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  example: "incriptedPassword!"
+      responses:
+        "201":
+          description: User authenticated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    format: jwt
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4YzIzZjU1LTBkYTgtNDRlMy1iZDg4LTY2ZWU4Y2ZiM2IxMiIsInJvbCI6Im1hbmFnZXIifQ.zXjFaoW3KKKAOQulIacdQ8PHPR8RT83IfdtBWAGRdRg"
+        "401":
+          $ref: '#/components/responses/401'
+
+        "500":
+          $ref: '#/components/responses/500'
+          
+
+
+  /v1/auth/register:
+    post:
+      tags:
+        - Auths
+      summary: Registers a new user and returns their account details.
+      description: This endpoint allows a new user to sign up by providing necessary details (username, email, etc.). Upon successful registration, the user's account details are returned.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreate"
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              example:
+                - id: '0a8f5b0-7d6e-4548-90d4-1090647c1ed5'
+                  username: "janedoe"
+                  email: "janedoe@example.com"
+                  first_name: "Jane"
+                  last_name: "Doe"
+                  role_name: "customer"
+        "400":
+              $ref: "#/components/responses/400"
+        "409":
+             $ref: "#/components/responses/409"
+
+        "500":
+          $ref: "#/components/responses/500"
+
+  /v1/auth/sign-out:
+    post:
+      tags:
+        - Auths
+      summary:  Logs out the authenticated user.
+      description: This endpoint securely invalidates the user's authentication token, terminating their active session and requiring re-authentication for access to protected resources.
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          $ref: "#/components/responses/204"
+        "500":
+          $ref: "#/components/responses/500"
+          
+          
+  /v1/users/forget:
+    put:
+      tags:
+        - Users
+      summary: 'Initiates the password recovery process. '
+      description:
+       This endpoint verifies if the user has exceeded the recovery attempt limit within a 24-hour period. If the limit has not been reached, the recovery process proceeds. Exceeding the limit results in account limitations. This public API is subject to rate limiting.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              email: example1234@mail.com
+      responses:
+        '200':
+          description: 
+            Increases the count of attempts, adds a timestamp. Sets the reset token. Adds an email to the email queue with a link with the attempt token.
+        '400':
+          $ref: "#/components/responses/400"
+        '404':
+          $ref: "#/components/responses/404"
+        '429':
+          $ref: '#/components/responses/429'
+  /v1/users/reset:
+    put:
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      summary: "Updates the user's password."
+      description: >-
+        Auth: Public
+        
+        
+        Verifies the validity and expiration status (24 hours) of the provided reset password token, checks if the new password meets the required parameters for minimum and maximum length, and if valid, hashes and updates the password. Returns a 404 error if the token is not found.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              reset_token: TE3fEU8S80rg1EelA3jmEetVokFvLgTK
+              password: definitelywontforget!213
+              repeat_password: definitelywontforget!213
+      responses:
+          '200':
+            description: reset successfull. Goes to login screen, does not auto login.
+          '404':
+            $ref: "#/components/responses/404"
+          '400':
+            $ref: "#/components/responses/400"
+          '429':
+            $ref: '#/components/responses/429'
+
+
+
+  /v1/users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      description: Retrieves a paginated `list of all registered users` in the system.Each user entry includes basic information such as ID, first name, last name, username, email, and role
+      security: 
+        - bearerAuth: []
+      responses:
+        "200":
+          description: A list of users
+          content:
+            application/json:
+              schema:
+               example:
+                - id: '40a8f5b0-7d6e-4548-90d4-1090647c1ed5'
+                  first_name: "John"
+                  last_name: "Doe"
+                  username: "johndoe"
+                  email: "johndoe@example.com"
+                  password: 'incriptedPassword!'
+                  address:
+                  - street: "123 Main St"
+                    city: "Springfield"
+                    state: "IL"
+                    postalCode: "62704"
+                    country: "USA"
+                  role_name: "client"
+              
+                - id: '1beafdee-f558-4603-8ed7-f3a0e97f24b3'
+                  first_name: "Jane"
+                  last_name: "Doe"
+                  username: "janedoe"
+                  email: "janedoe@example.com"
+                  password: "incriptedPassword!"
+                  address:
+                  - street: "Calle cirunvalacion"
+                    city: "Soyapango"
+                    state: "San Salvador"
+                    postalCode: "CP 1116"
+                    country: "El Salvador"
+                
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: '#/components/responses/401'
+        "403":
+          $ref: "#/components/responses/403"
+        "500":
+          $ref: "#/components/responses/500"
+
+    post:
+      tags:
+        - Users
+      summary: Create a new user
+      description: Register a new user by providing necessary information, such as personal details, username, email, address, and role. Upon successful registration, the endpoint returns the newly created user complete profile.
+
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreate"
+      responses:
+        "201":
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+               example:
+                - id: '40a8f5b0-7d6e-4548-90d4-1090647c1ed5'
+                  first_name: "John"
+                  last_name: "Doe"
+                  username: "johndoe"
+                  email: "johndoe@example.com"
+                  password: 'incriptedPassword!'
+                  address:
+                  - street: "Calle cirunvalacion"
+                    city: "Soyapango"
+                    state: "San Salvador"
+                    postalCode: "CP 1116"
+                    country: "El Salvador"
+                  role_name: "client"
+              
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: '#/components/responses/401'
+        "403":
+          $ref: "#/components/responses/403"
+        "409":
+          $ref: "#/components/responses/409"
+        "500":
+          $ref: "#/components/responses/500"
+        
+
+  /v1/users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Get a user by ID
+      description:  Obtain a `specific user profile` using their unique UUID. The endpoint returns detailed information, including personal data, account credentials, addresses, and assigned roles.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: The user UUID to request resource data for.
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+      responses:
+        "200":
+          description: User details
+          content:
+            application/json:
+              example:
+                - id: '40a8f5b0-7d6e-4548-90d4-1090647c1ed5'
+                  first_name: "John"
+                  last_name: "Doe"
+                  username: "johndoe"
+                  email: "johndoe@example.com"
+                  password: "incriptedPassword!"
+                  address:
+                  - street: "Calle cirunvalacion"
+                    city: "Soyapango"
+                    state: "San Salvador"
+                    postalCode: "CP 1116"
+                    country: "El Salvador"
+                  role_name: "client"
+              
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: '#/components/responses/401'
+        "403":
+          $ref: "#/components/responses/403"
+        "500":
+          $ref: "#/components/responses/500"
+          
+    put:
+      tags:
+        - Users
+      summary: Update a user status (It's mostly for the manager)
+      description: This Endpoint `Updates` the information of a `specific user`. Requires `manager-level` authorization.
+      security:
+        - bearerAuth: [] #manager
+      parameters:
+        - name: id
+          in: path
+          description: The user UUID to update all data of the user
+                        resource data for.
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: User updated successfully
+          content:
+            application/json:
+              example:
+                - id: '40a8f5b0-7d6e-4548-90d4-1090647c1ed5'
+                  first_name: "Jonathan"
+                  last_name: "alvares"
+                  username: "jonaAlva"
+                  email: "jonAlva@example.com"
+                  address:
+                  - street: "Calle Matazano"
+                    city: "Soyapango"
+                    state: "San Salvador"
+                    postalCode: "CP 1116"
+                    country: "El Salvador"
+                  role_name: "manager"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: '#/components/responses/401'
+        "403":
+          $ref: "#/components/responses/403"
+        "500":
+          $ref: "#/components/responses/500"
+
+                
+  /v1/users/{id}/status:
+    patch:
+      tags:
+        - Users
+      summary: Update the state of the user 
+      description: This endpoint `Updates` the `status` of a `specific user`. This operation is typically used to manage inactive users, such as clients who have not placed any orders
+      security: 
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: The user UUID to update the state of the user.
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStatus"
+      responses:
+        "200":
+          description: status updated successfully
+          content:
+           aplication/json:
+            schema: 
+              $ref: '#/components/schemas/UpdateStatus'
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: '#/components/responses/401'
+        "403":
+          $ref: "#/components/responses/403"
+        "500":
+          $ref: "#/components/responses/500"
+          
+          
+  /emails:
+    post:
+      tags:
+        - Emails Senders
+      security:
+        - bearerAuth: []
+      summary: 'Queues an email for sending.'
+      description: 'his endpoint adds an email to a queue for asynchronous processing and sending by a worker process. Requires Bearer token authentication. A 404 Not Found error is returned if any specified attachments cannot be located.'
+      requestBody:
+        content:
+          application/json:
+            example:
+              sender:
+                name: Marketing Team
+                address: juanitoperez@email.com
+  
+              recipients:
+                - name: John Doe
+                  address: example@gmail.com
+                - name: Jhon perez # Example of multiple recipients
+                  address: jhonPerz@example.net
+  
+              reply_to: job_Email@email.com
+  
+              subject: "Stock for {product_name} is low!"
+  
+              content:
+                text: "The {product_name} you liked has only {quantity} left."
+                html: "<h1>The {product_name} you liked has only {quantity} units left!</h1><img src='{product_image_url}' alt='{product_name} Image'>"
+  
+              attachments:
+                - id: 1
+                  filename: product_image.jpg
+                  content_type: image/jpeg
+                - id: 2
+                  filename: product_image.jpg
+                  content_type: image/jpeg
+
+
+      responses:
+        '202':
+          description: email successfully added to queue
+        '400':
+          $ref: "#/components/responses/400"
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: "#/components/responses/404"
+          
+          
+  /emails/{id}:
+    put:
+      tags:
+        - Emails Senders
+      security:
+        - bearerAuth: []
+      summary: 'Updates the status of an email job'
+      description: Thisendpoint is designed to efficiently retrieve and lock email objects. If the necessary parameters are included in the request, the email object is returned, allowing for immediate processing and preventing concurrent modifications.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            example:
+              new_status: 5
+              include_job: true
+      responses:
+        '200':
+          description: status updated, includes email object if requested
+        '404':
+          $ref: "#/components/responses/404"
+        '400':
+          $ref: "#/components/responses/400"
+        '401':
+          $ref: "#/components/responses/401"
+
+
+  /v1/products:
+    get:
+      tags:
+        - Products
+      summary: Retrieve a list of all users in the system.
+      description:  This endpoint retrieves a comprehensive list of products available in the e-commerce platform. It includes key details such as product name, description, price, category, stock availability, and other essential attributes.
+      responses:
+        "200":
+          description: A list of products
+          content:
+            application/json:
+              example:
+                - id: "123e4567-e89b-12d3-a456-426614174000"
+                  name: "sport shoes"
+                  description: "Light and comfortable shoes, ideal for sports activities."
+                  price: 99.99
+                  category_id: "456e1234-e89b-98d3-a123-426614171234"
+                  stock: 25
+                  is_available: true
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: '#/components/responses/401'
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: '#/components/responses/404'
+        "500":
+          $ref: "#/components/responses/500"
+
+    post:
+      tags:
+        - Products
+      summary: Add a new product to the catalog.
+      description: This endpoint allows the creation of a new product entry in the e-commerce platform. Users can provide details such as name, description, price, category, stock, and availability status. Upon successful creation, the product becomes available for purchase.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductCreate"
+      responses:
+        "201":
+          description: Product created successfully
+          content:
+            application/json:
+              example:
+                - id: "123e4567-e89b-12d3-a456-426614174000"
+                  name: "Sport Shoes"
+                  description: "Light and comfortable shoes, ideal for sports activities"
+                  price: 99.99
+                  category_id: "456e1234-e89b-98d3-a123-426614171234"
+                  stock: 25
+                  is_available: true
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: '#/components/responses/401'
+        "403":
+          $ref: "#/components/responses/403"
+        "409":
+          $ref: "#/components/responses/409"
+        "500":
+          $ref: "#/components/responses/500"
+
+  /v1/products/{id}:
+    get:
+      tags: 
+        - Products
+      summary: Fetch product details by ID.
+      description: Retrieve detailed information about a specific product using its unique identifier. The response includes product name, description, price, category, stock availability, and current status.
+      parameters:
+        - name: id
+          in: path
+          description: The product UUID to update all data of the product
+                        resource data for.
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+      responses:
+        "200":
+          description: Product details
+          content:
+            application/json:
+              example:
+                - id: "123e4567-e89b-12d3-a456-426614174000"
+                  name: "Sport Shoes"
+                  description: "Light and comfortable shoes, ideal for sports activities."
+                  price: 99.99
+                  category_id: "456e1234-e89b-98d3-a123-426614171234"
+                  stock: 25
+                  is_available: false
+        "400":
+            $ref: "#/components/responses/400"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+    put:
+      tags:
+        - Products
+      summary: Update a product
+      description: |
+        Updates the details of an existing product. This operation allows modification of the following product attributes:
+
+        <ul>
+          <li>name: The product's name.</li>
+          <li>description: A detailed description of the product.</li>
+          <li>price: The product's price.</li>
+          <li>category_id: The ID of the product's category.</li>
+          <li>stockThe current stock level of the product.</li>
+        </ul>
+
+        The product is identified by its unique UUID provided in the path parameter <code>id</code>. Requires authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: The product UUID to update all data of the product
+                        resource data for.
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdate"
+      responses:
+        "200":
+          description: Product updated successfully
+          content:
+            application/json:
+              example:
+                - id: "123e4567-e89b-12d3-a456-426614174000"
+                  name: "casual shoes"
+                  description: "Light and comfortable shoes, ideal for work events and going to school"
+                  price: 99.99
+                  category_id: "456e1234-e89b-98d3-a123-426614171234"
+                  stock: 25
+                  is_available: true
+        "400":
+          $ref: "#/components/responses/400"
+        "404":
+          $ref: "#/components/responses/404"
+        "409":
+          $ref: "#/components/responses/409"
+        "500":
+          $ref: "#/components/responses/500"
+
+    delete:
+      tags:
+        - Products
+      summary: Delete a product by ID
+      description: Delete a product entry from the catalog using its unique identifier. This operation is irreversible and should be performed with caution.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: The product UUID to update all data of the product
+                        resource data for.
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+      responses:
+        "204":
+            $ref: "#/components/responses/204"
+        "400":
+            $ref: "#/components/responses/400"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+                
+  /v1/products/{id}/status:
+    patch:
+      tags:
+        - Products
+      summary: Update the state of the product 
+      description: This endpoint allows updating the status of a product to reflect changes such as <code>"out of stock" or "restored"</code>. It ensures accurate inventory tracking and product availability for customers.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: The product UUID to update the state of the product.
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStatus'
+      responses:
+        "200":
+          description: status updated successfully
+          content:
+           aplication/json:
+            schema: 
+              $ref: '#/components/schemas/UpdateStatus'
+        "400":
+          $ref: "#/components/responses/400"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+
+                
+                
+                
+  /users/{userId}/favorite-products/{productId}/favorite:
+    post:
+      tags:
+        - Favorite Products
+      summary: Create Favorite Product Relationship
+      description: This endpoint enables users to curate their personal product wishlist by marking specific items as favorites. It provides a personalized shopping experience by allowing users to save products they find interesting or wish to purchase later. The system ensures data integrity by preventing duplicate favorites and validating both user and product existence.
+      security: 
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          description: The UUID of the user.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: productId
+          in: path
+          description: The UUID of the product to be marked as favorite.
+          required: true
+          schema:
+            type: string
+            format: uuid
+
+      responses:
+        "201":
+          description: Product successfully marked as favorite.
+          content:
+            application/json:
+              example:
+                id: "8b77b15a-64e2-42d1-9b23-2b7df0e66db1"
+                user_id: "a1c3d5f7-12b6-4d3a-8e2c-9e4a9c3a01b1"
+                product_id: "b1a9c7f3-d4c2-4d9a-8b5e-7c4d9a8f3e4d"
+                created_at: "2024-12-09T10:20:45.123Z"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: '#/components/responses/401'
+        "409":
+          $ref: "#/components/responses/409"
+        "500":
+          $ref: "#/components/responses/500"
+
+    delete:
+      tags:
+        - Favorite Products
+      summary: Remove a product from favorites
+      description: A user endpoint that allows customers to dynamically manage their favorite products list. This operation provides flexibility in product curation, enabling users to remove items from their favorites as their preferences or interests change.
+      security: 
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          description: The UUID of the user.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: productId
+          in: path
+          description: The UUID of the product to be removed from favorites.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          $ref: "#/components/responses/204"
+        "400":
+          $ref: "#/components/responses/400"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+
+
+                
+    
+  /v1/categories:
+    get:
+      tags:
+        - Categories
+      summary: Get all categories
+      description: Retrieve the complete list of categories available in the system. Each category entry includes relevant details.
+      responses:
+        "200":
+          description: A list of categories.cha 
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        "400":
+          $ref: "#/components/responses/400"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+                
+    post:
+      tags:
+        - Categories
+      summary: Create a new category
+      description: Add a new category to the database by providing the required details. This operation saves the category for future reference.
+      security: 
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+      responses:
+        "201":
+          description: Category created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: '#/components/responses/401'
+        "403":
+          $ref: "#/components/responses/403"
+        "409":
+          $ref: "#/components/responses/409"
+        "500":
+          $ref: "#/components/responses/500"
+
+
+  /v1/categories/{id}:
+    get:
+      tags:
+        - Categories
+      summary: Get a category by ID
+      description: Retrieve detailed information about a specific category using its unique identifier (ID).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the category to retrieve.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The requested category.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        "400":
+          $ref: "#/components/responses/400"
+        "404":
+          $ref: "#/components/responses/404"
+        "500":
+          $ref: "#/components/responses/500"
+
+    put:
+      tags:
+        - Categories
+      summary: Update a category
+      description: Modify the details of an existing category by specifying its unique identifier (ID) and providing the updated information.
+      security: 
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the category to update.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+      responses:
+        "200":
+          description: Category updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: '#/components/responses/401'
+        "403":
+          $ref: "#/components/responses/403"
+        "500":
+          $ref: "#/components/responses/500"
+
+    delete:
+      tags:
+        - Categories
+      summary: Delete a category
+      description: Permanently remove a category from the database using its unique identifier (ID). This is in case the e-commers is not going to handle that category anymore.
+      security: 
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the category to delete.
+          schema:
+            type: string
+      responses:
+        "204":
+          $ref: "#/components/responses/204"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: '#/components/responses/401'
+        "403":
+          $ref: "#/components/responses/403"
+        "500":
+          $ref: "#/components/responses/500"
+    
+  /v1/clients/{id}/orders:
+    post:
+      tags:
+        - Orders
+      summary: Create a new order
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      description: Add a new order by providing user identification, product details, quantities, and payment method. This endpoint creates a new order record in the system.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderCreate"
+      responses:
+          "201":
+            description: Order created successfully.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Order"
+          "400":
+            $ref: "#/components/responses/400"
+          "401":
+            $ref: "#/components/responses/401"
+          "403":
+            $ref: "#/components/responses/403"
+          "409":
+            $ref: "#/components/responses/409"
+          "500":
+            $ref: "#/components/responses/500"
+
+  /v1/orders:
+    get:
+      tags:
+        - Orders
+      summary: Retrieve all orders
+      description: Return a list of all orders, including their details such as status, total amount, and payment information.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Orders retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "500":
+          $ref: "#/components/responses/500"
+
+  /v1/orders/{id}:
+    get:
+      tags:
+        - Orders
+      summary: Retrieve an order
+      description: Get detailed information about a specific order using its unique identifier (UUID). Includes status, total cost, and payment details.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: The unique identifier (UUID) of the order.
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Order retrieved successfully.
+          content:
+            application/json:
+              example:
+                - id: "8e700b8b-e32c-4f21-b44c-53cff3394f13"
+                  user_uuid: "40a8f5b0-7d6e-4548-90d4-1090647c1ed5"
+                  status: "completed"
+                  total: 250.75
+                  payment_method: "credit_card"
+                  stripe_payment_intent: "pi_1A2B3C4D5E6F7G8H9I0J"
+                  created_at: "2024-12-09T04:48:39.189Z"
+                  updated_at: "2024-12-09T05:00:00.000Z"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "500":
+          $ref: "#/components/responses/500"
+
+    delete:
+      tags:
+        - Orders
+      summary: Delete an order by ID
+      description: Delete an order from the system permanently using its unique identifier (UUID). Once deleted, the order cannot be restored.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: The unique identifier (UUID) of the order.
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+          "204":
+            $ref: "#/components/responses/204"
+          "400":
+            $ref: "#/components/responses/400"
+          "401":
+            $ref: "#/components/responses/401"
+          "403":
+            $ref: "#/components/responses/403"
+          "500":
+            $ref: "#/components/responses/500"
+    
+  /v1/orders/{id}/status:
+    patch:
+      tags:
+        - Orders
+      summary: Update an order
+      description: Modify the status of a specific order (e.g., marking it as completed, canceled, or in-progress) using its unique identifier (UUID). This action updates the order's lifecycle state.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: The unique identifier (UUID) of the order to update.
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderUpdate"
+      responses:
+        "200":
+          description: Order updated successfully.
+          content:
+            application/json:
+              example:
+                status: "completed"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "500":
+          $ref: "#/components/responses/500"
+
+                
+
+  /payments:
+    post:
+      tags:
+        - Payments
+      security:
+        - bearerAuth: []
+      summary:  Create a new payment intent for an order.
+      description: >
+        `Auth: bearer`
+        
+        
+        Creates a Payment Intent with the requires_payment_method status and associates it with the provided order ID. Returns a 404 error if the order ID is not found.
+      requestBody:
+        content:
+          application/json:
+            example:
+              order_id: '58dd5992-a099-4197-a2f3-7cbaabec41e9'
+              stripe_api_version: 4.3
+              payment_intent_details:
+                amount: 123
+                currency: USD
+      responses:
+        '200':
+          description: payment intent created succesfully
+        '400':
+          $ref: "#/components/responses/400"
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: "#/components/responses/403"
+        '500':
+          description: unable to create payment intent with stripe. Error details.
+    get:
+      tags:
+        - Payments
+      summary:  Update payment status and mark intent as closed.
+      description: > 
+        `Auth: bearer`
+        
+        
+        Updates the payment status of an order and optionally marks the payment intent as closed. This endpoint is used for final updates to a payment intent's status.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: array of ids that are needing processing by the worker.
+        '401':
+          $ref: '#/components/responses/401'
+        '500':
+          $ref: "#/components/responses/500"
+          
+  /payments/{id}:
+    post:
+      tags:
+        - Payments
+      security:
+        - bearerAuth: []
+      summary: Update payment status and mark intent as closed.
+      description: >
+        `Auth: bearer`
+        
+        
+        Updates the payment status of an order and optionally marks the payment intent as closed. This endpoint is used for final updates to a payment intent's status.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            example:
+              closed: true
+              payment_status: 3
+      responses:
+        '200':
+          description: changes to payment made succesfully
+        '400':
+          $ref: "#/components/responses/400"
+        '401':
+          $ref: '#/components/responses/401'
+        '500':
+          $ref: "#/components/responses/500"
+          
+    put:
+      tags:
+        - Payments
+      security:
+        - bearerAuth: []
+      summary: Update payment details and confirm payment.
+      description: >
+        `Auth: bearer`
+        
+         Updates payment intent details, such as card information, and optionally confirms the payment. Follows Stripe's guidelines for managing payment intent status changes.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            examples:
+              updating with card info:
+                value:
+                  payment_details:
+                    card_number: 123123123
+                    cvc: 123123
+                  other_fields_to_update:
+                    - field1: value
+                    - field2: value
+                    - field3: value
+              customer clicked pay as a final step, we want to charge card now:
+                value:
+                  confirm_payment: true
+      responses:
+        '200':
+          description: payment intent updated succesfully AND/OR payment confirmation started succesfully
+        '400':
+          $ref: '#/components/responses/400'
+        '404':
+           $ref: "#/components/responses/404"
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: "#/components/responses/403"
+        '500':
+          description: 'An error ocurred when pushing payment details to stripe. Error details : ...'
+  /webhook:
+    post:
+      tags:
+        - Payments
+      security:
+        - bearerAuth: []
+      summary:  Receive Stripe webhook updates.
+      description: >
+        `Auth: bearer`
+        
+        
+         Receives event notifications from Stripe about payment intent updates, such as status changes or required actions. The primary goal is to validate the received data (e.g., JSON format) and store it in the incoming_payment_webhooks table for future processing by a worker. No business logic is executed at this stage. This ensures compliance with Stripe’s documentation, where webhooks should be treated as notifications, not triggers for immediate business operations.
+         
+      responses:
+        '200':
+          description: the event was recieved correctly.
+        '400':
+          $ref: "#/components/responses/400"
+        '404':
+          $ref: '#/components/responses/404'
+        '401':
+          $ref: '#/components/responses/401'
+          
+          
+  /webhook/{id}:
+    post:
+      tags:
+        - Payments
+      security:
+        - bearerAuth: []
+      summary:  Retrieve and lock webhook event data for processing.
+      description: >
+        `Auth: bearer`
+        
+        
+        Allows a worker to fetch the details of a specific webhook event by its ID and lock it to ensure no other worker processes the same event simultaneously. The endpoint also supports updating the processing status of the webhook event (e.g., in_progress). This is useful for coordinating distributed systems where multiple workers handle event processing in parallel.
+      requestBody:
+        content:
+          application/json:
+            example:
+              lock: true
+              status: in_progress
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: webhook job data
+        '400':
+          $ref: "#/components/responses/400"
+        '401':
+          $ref: '#/components/responses/401'
+          
+components:
+  schemas:
+          
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postalCode:
+          type: string
+        country:
+          type: string
+          
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          items:
+            $ref: '#/components/schemas/UUID'
+        first_name:
+          type: string
+        last_name:
+          type: string
+        username:
+           type: string
+        email:
+          type: string
+        password: 
+          type: string
+          format: password
+        role_name:
+          type: string
+        addresses:
+          type: array
+          items: 
+            $ref: '#/components/schemas/Address'
+
+    UserCreate:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        is_active:
+          type: boolean
+          default: true
+        role_name:
+          type: string
+          default: "client"
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+
+    UserUpdate:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        role_name:
+          type: string
+
+    ProductCreate:
+      type: object
+      required:
+        - category_id
+        - description
+        - name
+        - price
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        category_id:
+          type: string
+        stock:
+          type: integer
+        is_available:
+          type: boolean
+          default: true
+
+
+    ProductUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        category_id:
+          type: string
+        stock:
+          type: integer
+        is_available:
+          type: boolean
+          default: true
+          
+          
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          items: 
+            $ref: '#/components/schemas/UUID'
+        name:
+          type: string
+        description:
+          type: string
+        is_active:
+          type: boolean
+    CategoryInput:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        is_active:
+          type: boolean
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          items: 
+            $ref: '#/components/schemas/UUID'
+        user_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+            - pending
+            - completed
+            - canceled
+        total:
+          type: number
+          format: decimal
+        payment_method:
+          type: string
+        stripe_payment_intent:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          
+    OrderCreate:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          items: 
+            $ref: '#/components/schemas/UUID'
+        status:
+          type: string
+          enum:
+            - pending
+            - completed
+            - canceled
+        total:
+          type: number
+          format: decimal
+        payment_method:
+          type: string
+        stripe_payment_intent:
+          type: string
+          
+    OrderUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - pending
+            - completed
+            - canceled
+    
+    Carts:
+      type: object
+      properties:
+          id:
+            type: string
+            format: uuid
+            description: "Unique identifier for the cart entry"
+            items:
+              $ref: '#/components/schemas/UUID'
+          user_id:
+            type: string
+            format: uuid
+            description: "Unique identifier of the user who owns the cart"
+          product_id:
+            type: string
+            format: uuid
+            description: "Unique identifier of the product in the cart"
+          quantity:
+            type: integer
+            description: "Number of items of the product in the cart"
+          created_at:
+            type: string
+            format: timestamp
+            description: "Timestamp indicating when the cart entry was created"
+      required:
+         - id
+         - user_id
+         - product_id
+         - quantity
+         - created_at
+    
+    UUID:
+      type: string
+      format: uuid
+      description: A universally unique identifier (UUID).
+      example: "40a8f5b0-7d6e-4548-90d4-1090647c1ed5"
+      
+      
+    UpdateStatus:
+      type: object
+      properties:
+        is_active:
+          type: boolean
+          description: Indicates whether the user is active or not.
+      required:
+        - is_active
+        
+  responses:
+  
+      204:
+        description: Resource deleted successfully. No content to return.
+        
+        
+      401:
+        description: Unauthorized - Invalid or expired token.
+        content:
+          application/json:
+            example:
+              message: "Unauthorized access"
+              code: 401
+
+      400:
+        description: Bad Request - Validation or format errors.
+        content:
+          application/json:
+            example:
+              message: The server returned a `400 Bad Request` error. look your query
+              code: 400
+
+      404:
+        description: Not Found - The requested resource was not found or the count is zero.
+        content:
+          application/json:
+            example:
+              message: "Resource not found"
+              code: 404
+
+      403:
+        description: Forbidden - Access to the resource is denied.
+        content:
+          application/json:
+            example:
+              message: "The access to the requested resource is forbidden"
+              code: 403
+              
+      409:
+        description:  conflict with the current state of a resource
+        content:
+            application/json:
+              example:
+                message: "the resource already exist"
+                code: 409
+
+
+      429:
+        description: Too Many Requests - Rate limit exceeded.
+        content:
+          application/json:
+            example:
+              message: "Too many requests, rate limit exceeded"
+              code: 429
+
+      500:
+        description: Internal Server Error - An unexpected error occurred.
+        content:
+          application/json:
+            example:
+              message: "Internal server error"
+              code: 500
+
+          
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer 
+      bearerFormat: JWT <your token>
+      description: "JWT Bearer token required for authentication. Obtain a token via the /auth/login endpoint"

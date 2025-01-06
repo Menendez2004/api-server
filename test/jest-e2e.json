@@ -1,6 +1,9 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": ".",
+  "coveragePathIgnorePatterns": [
+  "<rootDir>/.*\\.module\\.ts$"
+],
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
