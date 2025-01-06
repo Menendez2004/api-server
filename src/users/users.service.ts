@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException, UseFilters } from '@nestjs/common';
-import { PrismaService } from 'src/helpers/prisma/prisma.service';
+import { PrismaService } from '../helpers/prisma/prisma.service';
 import { Prisma, Users, UserRoles } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { TokenService } from 'src/token/token.service';
-import { GlobalExceptionFilter } from 'src/helpers/filters/global.exception.filter';
+import { TokenService } from '../token/token.service';
+import { GlobalExceptionFilter } from '../helpers/filters/global.exception.filter';
 
 
 @Injectable()
@@ -12,7 +12,7 @@ export class UsersService {
     private readonly  logger = new Logger(UsersService.name);
     constructor(
         private readonly tokenService: TokenService,
-        private readonly prismaService: PrismaService) { }
+        private readonly prismaService: PrismaService) {  }
 
     async createUser(data: Prisma.UsersCreateInput): Promise<Users> {
         try {
@@ -69,16 +69,17 @@ export class UsersService {
     }
 
     async getUserRole(userId: string): Promise<UserRoles | null> {
-        try {
-            const users = await this.findById(userId);
-            return await this.prismaService.userRoles.findUnique({
-                where: {
-                    id: users.roleId
-                },
-            });
-        } catch (error) {
-            throw new NotFoundException(`Error fetching user role for user ID ${userId}: ${error.message}`);
+        const user = await this.findById(userId);
+        const userRole = await this.prismaService.userRoles.findUnique({
+            where: {
+                id: user.roleId
+            },
+        });
+        if (!userRole) {
+            throw new NotFoundException(`User role not found for user ID ${userId}`);
         }
+
+        return userRole;
     }
 
     async resetPass(

@@ -11,7 +11,6 @@ import { ConfigurationService } from 'src/helpers/configuration/configuration.se
 
 @Controller('users')
 export class UsersController {
-    private readonly logger = new Logger(UsersController.name);
     constructor(
         private readonly tokenService: TokenService,
         private readonly usersService: UsersService,

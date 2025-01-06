@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException, NotFoundException, UseFilters } from '@nestjs/common';
-import { PrismaService } from 'src/helpers/prisma/prisma.service';
+import { PrismaService } from '../helpers/prisma/prisma.service';
 import { VerificationTokens, Prisma } from '@prisma/client';
-import { GlobalExceptionFilter } from 'src/helpers/filters/global.exception.filter';
+import { GlobalExceptionFilter } from '../helpers/filters/global.exception.filter';
 
 @Injectable()
 @UseFilters(new GlobalExceptionFilter())
