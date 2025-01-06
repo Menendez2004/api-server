@@ -17,6 +17,8 @@ import { ProductsModule } from './products/products.module';
 import { ValidatorModule } from './helpers/service/validator.module';
 import { GraphqlModule } from './graphql.module';
 import { TokenModule } from './token/token.module';
+import { MailModule } from './helpers/mail/mail.module';
+import { ConfigurationModule } from './helpers/configuration/configuration.module';
 
 @Module({
   imports: [
@@ -24,6 +26,7 @@ import { TokenModule } from './token/token.module';
       isGlobal: true,
     }),
     UsersModule,
+    ConfigurationModule,
     AuthModule,
     PrismaModule,
     CategoriesModule,
@@ -35,7 +38,8 @@ import { TokenModule } from './token/token.module';
     ValidatorModule,
     GraphqlModule,
     ProductsModule,
-    TokenModule
+    TokenModule,
+    MailModule,
   ],
   controllers: [UsersController,AuthController],
   providers: [

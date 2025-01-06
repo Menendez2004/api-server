@@ -9,7 +9,9 @@ export class TokenService {
     constructor(private readonly prismaService: PrismaService) { }
 
 
-    async createToken(token: Prisma.VerificationTokensCreateInput): Promise<VerificationTokens> {
+    async createToken(
+        token: Prisma.VerificationTokensCreateInput
+    ): Promise<VerificationTokens> {
         try {
             return await this.prismaService.verificationTokens.create({ data: token });
         } catch (error) {
@@ -39,7 +41,7 @@ export class TokenService {
     }
 
 
-
+//******************************************************************/
     private static encodeBase64(data: string): string {
         return Buffer.from(data).toString('base64');
     }

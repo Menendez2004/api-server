@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { PaginationInput } from 'src/helpers/pagination/pagination.input';
 import { PaginationMeta } from 'src/helpers/pagination/pagination.meta';
 import { PrismaService } from 'src/helpers/prisma/prisma.service';
