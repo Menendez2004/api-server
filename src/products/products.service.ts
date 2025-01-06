@@ -60,7 +60,6 @@ export class ProductsService {
       ? [{ [sortBy.field]: sortBy.order.toLowerCase() as 'asc' | 'desc' }]
       : [{ price: 'desc' as 'asc' | 'desc' }];
 
-    console.log(sortBy);
 
     const [items, totalItems] = await Promise.all([
       this.prismaService.products.findMany({

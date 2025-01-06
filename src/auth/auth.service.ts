@@ -48,7 +48,6 @@ export class AuthService {
         try {
             return await bcrypt.compare(password, hashedPassword);
         } catch (err) {
-            console.error('Error verifying password:', err);
             throw new InternalServerErrorException('Error verifying password, make sure that the password is correct');
         }
     }
