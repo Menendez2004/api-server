@@ -20,10 +20,10 @@ export class SortingProductInput {
     })
     @IsOptional()
     @IsEnum(ProductSortableField)
-    field: ProductSortableField;
+    field: ProductSortableField = ProductSortableField.PRICE;
 
     @Field(() => SortOrder, { defaultValue: SortOrder.ASC })
     @IsOptional()
     @IsEnum(SortOrder)
-    order: SortOrder;
+    order: SortOrder ;
 }

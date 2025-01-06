@@ -16,6 +16,7 @@ export class AuthentificationMock{
         updatedAt: this.today,
     };
 
+    
     static userRole: UserRoles = {
         id: 2,
         createdAt: this.today,

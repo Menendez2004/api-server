@@ -33,7 +33,7 @@ export class ProductsService {
     private readonly prismaService: PrismaService,
     private readonly validatorService: ValidatorService,
     private readonly cloudinaryService: CloudinaryService,
-  ) {}
+  ) { }
 
   async findAll(
     filters?: ProductFiltersInput,
@@ -58,7 +58,8 @@ export class ProductsService {
 
     const orderBy = sortBy
       ? [{ [sortBy.field]: sortBy.order.toLowerCase() as 'asc' | 'desc' }]
-      : [{ price: 'desc' as 'asc' | 'desc' }]; // Updated default
+      : [{ price: 'desc' as 'asc' | 'desc' }];
+
     console.log(sortBy);
 
     const [items, totalItems] = await Promise.all([

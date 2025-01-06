@@ -21,7 +21,6 @@
     "seed": "ts-node prisma/seeds/index.seed.ts"
   },
   "dependencies": {
-    "@faker-js/faker": "^9.3.0",
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/apollo": "^12.2.2",
     "@nestjs/common": "^10.0.0",
@@ -54,6 +53,7 @@
     "uuid": "^11.0.4"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.3.0",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
