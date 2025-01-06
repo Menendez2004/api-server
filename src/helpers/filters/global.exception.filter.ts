@@ -84,9 +84,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         code?: string;
     } {
         const message = this.extractErrorMessage(exception);
-        const stack = this.extractErrorStack(exception);
+        const stack = exception instanceof  Error && !(exception instanceof HttpException)
+        ? exception.stack : undefined;
         const status = this.extractHttpStatus(exception);
         const code = this.extractErrorCode(exception);
+
         return { message, stack, status, code };
     }
 
