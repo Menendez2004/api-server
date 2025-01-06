@@ -6,7 +6,6 @@ import { IsUUID, IsString, IsOptional, IsPositive } from 'class-validator';
 export class ProductFiltersInput {
 
     @Field(() => String, { nullable: true })
-    @IsUUID()
     @IsOptional()
     name?: string;
 
@@ -20,8 +19,8 @@ export class ProductFiltersInput {
     @IsOptional()
     categoryId?: number;
 
-    @Field(() => Number, { nullable: true })
+    @Field(() => Boolean, { nullable: true })
     @IsPositive()
     @IsOptional()
-    isAvailable?: number;
+    isAvailable?: boolean;
 }
