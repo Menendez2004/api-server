@@ -10,6 +10,9 @@ import { SortOrder } from '../helpers/enums/sort.order.enum';
 import { Prisma } from '@prisma/client';
 import { ValidatorService } from '../helpers/service/validator.service';
 import { CloudinaryService } from '../helpers/cloudinary/cloudinary.service';
+import { UnprocessableEntityException } from '@nestjs/common';
+
+
 
 
 
@@ -69,14 +72,14 @@ describe('ProductsService', () => {
       const result = await productService.findAll();
 
       expect(prismaService.products.findMany).toHaveBeenCalledWith({
-        where: {}, 
+        where: {},
         orderBy: [{ price: 'desc' }],
-        skip: 0, 
-        take: 20, 
+        skip: 0,
+        take: 20,
       });
 
       expect(prismaService.products.count).toHaveBeenCalledWith({
-        where: {}, 
+        where: {},
       });
 
       const expectedMeta: PaginationMeta = {
@@ -100,22 +103,22 @@ describe('ProductsService', () => {
       const filters: ProductFiltersInput = { name: 'product', isAvailable: true };
       const sortBy: SortingProductInput = { field: ProductSortableField.PRICE, order: SortOrder.DESC };
 
-      const result = await productService.findAll({...filters}, {...sortBy});
+      const result = await productService.findAll({ ...filters }, { ...sortBy });
 
       expect(prismaService.products.findMany).toHaveBeenCalledWith({
         where: {
           name: { contains: filters.name, mode: Prisma.QueryMode.insensitive },
-          isAvailable: { equals: true }, 
+          isAvailable: { equals: true },
         },
         orderBy: [{ price: 'desc' }],
-        skip: 0, 
-        take: 20, 
+        skip: 0,
+        take: 20,
       });
 
       expect(prismaService.products.count).toHaveBeenCalledWith({
         where: {
           name: { contains: filters.name, mode: Prisma.QueryMode.insensitive },
-          isAvailable: { equals: true }, 
+          isAvailable: { equals: true },
         },
       });
 
@@ -128,8 +131,47 @@ describe('ProductsService', () => {
 
       expect(result.collection).toEqual(mockProducts);
       expect(result.meta).toEqual(expectedMeta);
-      
+
     });
   });
+
+  describe('createProduct', () => {
+    it('should throw an error if categoryId is missing', async () => {
+      const args = {
+        name: 'Test Product',
+        description: 'Test Description',
+        stock: 10,
+        isAvailable: true,
+        price: 100,
+        categoryId: undefined,
+      };
+
+      await expect(productService.createProduct(args)).rejects.toThrow(
+        new UnprocessableEntityException(),
+      );
+    });
+
+    it('should create a product successfully and return AddProductRes', async () => {
+      (prismaService.products.create as jest.Mock).mockResolvedValue({
+        id: '9026cddf-ed72-4241-89da-c2c90f23fcd6',
+        createdAt: new Date(),
+      });
+      const args = {
+        name: 'Test Product',
+        description: 'Test Description',
+        stock: 10,
+        isAvailable: true,
+        price: 100,
+        categoryId: [1, 2],
+      };
+
+      const result = await productService.createProduct(args);
+      expect(result.id).toBe('9026cddf-ed72-4241-89da-c2c90f23fcd6');
+      expect(result.createdAt).toBeInstanceOf(Date);
+      expect(prismaService.products.create).toHaveBeenCalled()
+    });
+  });
+
+  describe('editProduct', () => {})
 });
 

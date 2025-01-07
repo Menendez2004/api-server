@@ -5,7 +5,7 @@ import { CloudinaryRes } from "./cloudinary.res";
 
 @Injectable()
 export class CloudinaryService{
-    async uploadFile(file: Express.Multer.File): Promise<CloudinaryRes>{
+    async uploadFile(image: Express.Multer.File): Promise<CloudinaryRes>{
         return new Promise<CloudinaryRes>((resolve, reject) => {
             const stream = cloudinary.uploader.upload_stream(
                 { resource_type: 'image' },
@@ -17,7 +17,7 @@ export class CloudinaryService{
                     }
                 }
             );
-            stremifier.createReadStream(file.buffer).pipe(stream);
+            stremifier.createReadStream(image.buffer).pipe(stream);
         });
     }
 

@@ -1,5 +1,5 @@
 export enum OperationType {
-    ADD = 'ADDED',
+    ADD = 'ADD',
     REMOVE = 'REMOVE',
 
 }
