@@ -17,6 +17,7 @@ import { ProductsModule } from './products/products.module';
 import { ValidatorModule } from './helpers/service/validator.module';
 import { GraphqlModule } from './graphql.module';
 import { TokenModule } from './token/token.module';
+import { seconds, ThrottlerModule } from '@nestjs/throttler';
 import { MailModule } from './helpers/mail/mail.module';
 import { ConfigurationModule } from './helpers/configuration/configuration.module';
 
@@ -40,6 +41,13 @@ import { ConfigurationModule } from './helpers/configuration/configuration.modul
     ProductsModule,
     TokenModule,
     MailModule,
+    ThrottlerModule.forRoot([
+      {
+        ttl: seconds(parseInt(process.env.THROTTLE_TTL)),
+        limit: parseInt(process.env.THROTTLE_LIMIT),
+      },
+    ]),
+
   ],
   controllers: [UsersController,AuthController],
   providers: [

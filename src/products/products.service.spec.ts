@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProductsService } from './products.service';
 import { PrismaService } from '../helpers/prisma/prisma.service';
 import { OperationType } from '../helpers/enums/operation.type.enum';
-import { CreateProductsRes, DeletedProductsRes } from './dto/res/index.res';
+import { CreateProductsRes, DeletedProductsRes, UpdateProductRes } from './dto/res/index.res';
 import { UpdateProductImagesArgs } from './dto/args/update.product.imageArg';
 import { MocksProductService } from '../../test/mocks/product.mocks';
 import { PaginationMeta, ProductFiltersInput, ProductSortableField, SortingProductInput } from './dto/index.dto';
@@ -34,6 +34,7 @@ describe('ProductsService', () => {
             products: {
               findMany: jest.fn(),
               findFirst: jest.fn(),
+              findUnique: jest.fn(),
               create: jest.fn(),
               update: jest.fn(),
               delete: jest.fn(),
@@ -172,6 +173,26 @@ describe('ProductsService', () => {
     });
   });
 
-  describe('editProduct', () => {})
+  describe('editProduct', () => {
+    it('should update data of a product successfully', async () => {
+      (prismaService.products.findUnique as jest.Mock).mockResolvedValue({
+        id: '9026cddf-ed72-4241-89da-c2c90f23fcd6',
+      });
+
+      const mockUpdate = new Date();
+      (prismaService.products.update as jest.Mock).mockResolvedValue({
+        id: '9026cddf-ed72-4241-89da-c2c90f23fcd6',
+        updatedAt:  new Date(mockUpdate),
+      });
+      const args = {
+        name: 'Test Product',
+        stock: 2999
+      };
+      const result = await productService.updateProductData('9026cddf-ed72-4241-89da-c2c90f23fcd6', args);
+      expect(result).toBeInstanceOf(UpdateProductRes);
+      expect(result.updatedAt).toEqual(mockUpdate);
+      expect(prismaService.products.update).toHaveBeenCalled();
+    })
+  })
 });
 
