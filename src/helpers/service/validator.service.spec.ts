@@ -52,7 +52,6 @@ describe('ValidatorService', () => {
     });
 
     it('should throw NotFoundException if product does not exist', async () => {
-      // Use the same mockId for both the call and the expectation
       const mockId = { id: MocksProductService.defaultProductMock.id };
 
       jest.spyOn(prismaService.products, 'findUnique').mockResolvedValue(null);
@@ -61,7 +60,6 @@ describe('ValidatorService', () => {
         NotFoundException,
       );
 
-      // Use the same mockId in the expectation
       expect(prismaService.products.findUnique).toHaveBeenCalledWith({
         where: { id: mockId.id },
         include: { Categories: true },

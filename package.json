@@ -110,7 +110,6 @@
     "<rootDir>/.*\\.strategy\\.ts$",
     "<rootDir>/.*\\.controller\\.ts$",
     "<rootDir>/.*\\.model\\.ts$",
-    "<rootDir>/.*\\.decorator\\.ts$",
     "<rootDir>/.*\\.pagination\\.ts$",
     "<rootDir>/.*\\.helper\\.ts$",
     "<rootDir>/.*\\.main\\.ts$",

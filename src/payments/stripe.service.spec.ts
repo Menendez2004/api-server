@@ -271,7 +271,7 @@ describe('StripeService', () => {
         jest
           .spyOn((stripeService as any).stripe.webhooks, 'constructEvent')
           .mockImplementation(() => {
-            throw new Error('Invalid signature');
+            throw new NotAcceptableException('Invalid signature');
           });
 
         await expect(
