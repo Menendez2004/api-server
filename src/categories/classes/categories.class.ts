@@ -3,17 +3,17 @@ import { IsNotEmpty, IsString } from 'class-validator';
 
 @ObjectType()
 export class CategoriesClass {
-    @Field(() => ID)
-    id: number;
+  @Field(() => ID)
+  id: number;
 
-    @Field()
-    @IsNotEmpty()
-    @IsString()
-    name: string;
+  @Field()
+  @IsNotEmpty()
+  @IsString()
+  name: string;
 
-    @Field()
-    createdAt: Date;
+  @Field()
+  createdAt: Date;
 
-    @Field()
-    updatedAt: Date;
+  @Field()
+  updatedAt: Date;
 }

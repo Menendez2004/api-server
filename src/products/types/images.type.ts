@@ -3,27 +3,22 @@ import { Expose } from 'class-transformer';
 
 @ObjectType()
 export class ImagesTypes {
-    @Field(() => ID)
-    @Expose()
-    id: string;
+  @Field(() => ID)
+  @Expose()
+  id: string;
 
-    @Field({ name: 'productId' })
-    @Expose({ name: 'productId' })
-    @Expose()
-    productId: string;
+  @Field({ name: 'productId' })
+  productId: string;
 
-    @Field({ name: 'imageUrl' })
-    @Expose({ name: 'imageUrl' })
-    @Expose()
-    imageUrl: string;
+  @Field({ name: 'imageUrl' })
+  imageUrl: string;
 
-    @Field({ name: 'createdAt' })
-    @Expose({ name: 'createdAt' })
-    @Expose()
-    createdAt: Date;
+  @Field({ name: 'publicId' })
+  publicId: string;
 
-    @Field({ name: 'updatedAt' })
-    @Expose({ name: 'updatedAt' })
-    @Expose()
-    updatedAt: Date;
+  @Field({ name: 'createdAt' })
+  createdAt: Date;
+
+  @Field({ name: 'updatedAt' })
+  updatedAt: Date;
 }

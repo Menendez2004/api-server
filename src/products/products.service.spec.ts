@@ -1,20 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductsService } from './products.service';
 import { PrismaService } from '../helpers/prisma/prisma.service';
-import { OperationType } from '../helpers/enums/operation.type.enum';
-import { CreateProductsRes, DeletedProductsRes, UpdateProductRes } from './dto/res/index.res';
-import { UpdateProductImagesArgs } from './dto/args/update.product.imageArg';
+import { UpdateProductRes } from './dto/res/index.res';
 import { MocksProductService } from '../../test/mocks/product.mocks';
-import { PaginationMeta, ProductFiltersInput, ProductSortableField, SortingProductInput } from './dto/index.dto';
+import {
+  PaginationMeta,
+  ProductFiltersInput,
+  ProductSortableField,
+  SortingProductInput,
+} from './dto/index.dto';
 import { SortOrder } from '../helpers/enums/sort.order.enum';
 import { Prisma } from '@prisma/client';
 import { ValidatorService } from '../helpers/service/validator.service';
 import { CloudinaryService } from '../helpers/cloudinary/cloudinary.service';
 import { UnprocessableEntityException } from '@nestjs/common';
-
-
-
-
 
 describe('ProductsService', () => {
   let productService: ProductsService;
@@ -51,8 +50,8 @@ describe('ProductsService', () => {
               createMany: jest.fn(),
               deleteMany: jest.fn(),
             },
-          }
-        }
+          },
+        },
       ],
     }).compile();
 
@@ -67,8 +66,12 @@ describe('ProductsService', () => {
       const mockProducts = MocksProductService.paginationProductMock;
       const mockTotalItems = mockProducts.length;
 
-      jest.spyOn(prismaService.products, 'findMany').mockResolvedValue(mockProducts);
-      jest.spyOn(prismaService.products, 'count').mockResolvedValue(mockTotalItems);
+      jest
+        .spyOn(prismaService.products, 'findMany')
+        .mockResolvedValue(mockProducts);
+      jest
+        .spyOn(prismaService.products, 'count')
+        .mockResolvedValue(mockTotalItems);
 
       const result = await productService.findAll();
 
@@ -98,13 +101,26 @@ describe('ProductsService', () => {
       const mockProducts = [MocksProductService.defaultProductMock];
       const mockTotalItems = 1;
 
-      jest.spyOn(prismaService.products, 'findMany').mockResolvedValue(mockProducts);
-      jest.spyOn(prismaService.products, 'count').mockResolvedValue(mockTotalItems);
+      jest
+        .spyOn(prismaService.products, 'findMany')
+        .mockResolvedValue(mockProducts);
+      jest
+        .spyOn(prismaService.products, 'count')
+        .mockResolvedValue(mockTotalItems);
 
-      const filters: ProductFiltersInput = { name: 'product', isAvailable: true };
-      const sortBy: SortingProductInput = { field: ProductSortableField.PRICE, order: SortOrder.DESC };
+      const filters: ProductFiltersInput = {
+        name: 'product',
+        isAvailable: true,
+      };
+      const sortBy: SortingProductInput = {
+        field: ProductSortableField.PRICE,
+        order: SortOrder.DESC,
+      };
 
-      const result = await productService.findAll({ ...filters }, { ...sortBy });
+      const result = await productService.findAll(
+        { ...filters },
+        { ...sortBy },
+      );
 
       expect(prismaService.products.findMany).toHaveBeenCalledWith({
         where: {
@@ -132,7 +148,6 @@ describe('ProductsService', () => {
 
       expect(result.collection).toEqual(mockProducts);
       expect(result.meta).toEqual(expectedMeta);
-
     });
   });
 
@@ -169,7 +184,7 @@ describe('ProductsService', () => {
       const result = await productService.createProduct(args);
       expect(result.id).toBe('9026cddf-ed72-4241-89da-c2c90f23fcd6');
       expect(result.createdAt).toBeInstanceOf(Date);
-      expect(prismaService.products.create).toHaveBeenCalled()
+      expect(prismaService.products.create).toHaveBeenCalled();
     });
   });
 
@@ -180,19 +195,24 @@ describe('ProductsService', () => {
       });
 
       const mockUpdate = new Date();
-      (prismaService.products.update as jest.Mock).mockResolvedValue({
-        id: '9026cddf-ed72-4241-89da-c2c90f23fcd6',
-        updatedAt:  new Date(mockUpdate),
-      });
       const args = {
         name: 'Test Product',
-        stock: 2999
+        stock: 2999,
       };
-      const result = await productService.updateProductData('9026cddf-ed72-4241-89da-c2c90f23fcd6', args);
-      expect(result).toBeInstanceOf(UpdateProductRes);
-      expect(result.updatedAt).toEqual(mockUpdate);
-      expect(prismaService.products.update).toHaveBeenCalled();
-    })
-  })
-});
+      (prismaService.products.update as jest.Mock).mockResolvedValue({
+        id: '9026cddf-ed72-4241-89da-c2c90f23fcd6',
+        updatedAt: mockUpdate,
+        ...args,
+      });
 
+      const result = await productService.updateProductData(
+        '9026cddf-ed72-4241-89da-c2c90f23fcd6',
+        args,
+      );
+
+      expect(result).toBeInstanceOf(UpdateProductRes);
+      expect(result).toEqual(expect.objectContaining(args));
+      expect(prismaService.products.update).toHaveBeenCalled();
+    });
+  });
+});

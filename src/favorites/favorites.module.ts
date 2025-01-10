@@ -6,6 +6,6 @@ import { FavoritesResolver } from './favorites.resolver';
 @Module({
   imports: [PrismaModule],
   providers: [FavoritesService, FavoritesResolver],
-  exports: [FavoritesService, FavoritesResolver]
+  exports: [FavoritesService, FavoritesResolver],
 })
 export class FavoritesModule {}

@@ -1,12 +1,5 @@
 import { UseFilters } from '@nestjs/common';
-import {
-    Args,
-    Mutation,
-    Parent,
-    Query,
-    ResolveField,
-    Resolver,
-} from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ProductsTypes } from './types/products.types';
 import { ProductsService } from './products.service';
 import { AuthRole } from 'src/auth/decorators/auth.roles.decorator';
@@ -22,34 +15,34 @@ import { PaginationInput } from 'src/helpers/pagination/pagination.input';
 
 @Resolver(() => ProductsTypes)
 export class ProductsResolver {
+  constructor(private readonly productsService: ProductsService) {}
 
-    constructor(private readonly productsService: ProductsService) { }
+  @AuthRole('MANAGER')
+  @Mutation(() => CreateProductsRes)
+  @UseFilters(new GlobalExceptionFilter())
+  async createProduct(
+    @Args('data') data: CreateProductInput,
+  ): Promise<CreateProductsRes> {
+    const product = await this.productsService.createProduct(data);
+    return plainToInstance(CreateProductsRes, product);
+  }
 
-    @AuthRole('MANAGER')
-    @Mutation(() => CreateProductsRes )
-    @UseFilters( new GlobalExceptionFilter())
-    async createProduct(@Args('data') data: CreateProductInput): Promise<CreateProductsRes> {
-        const product = await this.productsService.createProduct(data);
-        return plainToInstance(CreateProductsRes, product);
-    }
+  @AuthRole('MANAGER')
+  @Mutation(() => DeletedProductsRes)
+  @UseFilters(new GlobalExceptionFilter())
+  async removeProduct(@Args('id') id: string): Promise<DeletedProductsRes> {
+    await this.productsService.removeProduct(id);
+    const res = new DeletedProductsRes();
+    res.deletedAt = new Date();
+    return res;
+  }
 
-    @AuthRole('MANAGER')
-    @Mutation(() => DeletedProductsRes)
-    @UseFilters( new GlobalExceptionFilter())
-    async removeProduct(@Args('id') id: string): Promise<DeletedProductsRes> {
-        await this.productsService.removeProduct(id);
-        const res = new DeletedProductsRes();
-        res.deletedAt = new Date();
-        return res;
-    }
-
-    @Query(() => ProductsPagination)
-    async findAllProducts(
-        @Args('filters', { nullable: true }) filters?: ProductFiltersInput,
-        @Args('sortBy', { nullable: true }) sortBy?: SortingProductInput,
-        @Args('pagination', { nullable: true }) pagination?: PaginationInput,
-    ): Promise<ProductsPagination> {
-        return this.productsService.findAll(filters, sortBy, pagination);
-    }
-
+  @Query(() => ProductsPagination)
+  async findAllProducts(
+    @Args('filters', { nullable: true }) filters?: ProductFiltersInput,
+    @Args('sortBy', { nullable: true }) sortBy?: SortingProductInput,
+    @Args('pagination', { nullable: true }) pagination?: PaginationInput,
+  ): Promise<ProductsPagination> {
+    return this.productsService.findAll(filters, sortBy, pagination);
+  }
 }

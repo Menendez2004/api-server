@@ -20,6 +20,7 @@ import { TokenModule } from './token/token.module';
 import { seconds, ThrottlerModule } from '@nestjs/throttler';
 import { MailModule } from './helpers/mail/mail.module';
 import { ConfigurationModule } from './helpers/configuration/configuration.module';
+import { ValidatorService } from './helpers/service/validator.service';
 
 @Module({
   imports: [
@@ -47,15 +48,15 @@ import { ConfigurationModule } from './helpers/configuration/configuration.modul
         limit: parseInt(process.env.THROTTLE_LIMIT),
       },
     ]),
-
   ],
-  controllers: [UsersController,AuthController],
+  controllers: [UsersController, AuthController],
   providers: [
     PrismaService,
+    ValidatorService,
     {
-    provide: APP_FILTER,
-    useClass: GlobalExceptionFilter
-  }, 
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
   ],
 })
-export class AppModule { }
+export class AppModule {}

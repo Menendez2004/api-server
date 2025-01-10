@@ -8,7 +8,7 @@ export class OrderDetailType {
   id: string;
 
   @Field(() => String)
-  ordeId: string;
+  orderId: string;
 
   @Field(() => String)
   productId: string;

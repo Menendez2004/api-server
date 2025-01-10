@@ -1,5 +1,4 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Expose } from 'class-transformer';
 import { NewRecordInfo } from '../../../helpers/interfaces/index.interface';
 
 @ObjectType({
@@ -10,6 +9,5 @@ export class AddFavoriteRes implements NewRecordInfo {
   id: string;
 
   @Field(() => Date!)
-  @Expose()
   createdAt: Date;
 }

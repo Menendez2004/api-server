@@ -1,5 +1,4 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { Expose } from 'class-transformer';
 import {
   IsBoolean,
   IsNumber,

@@ -15,7 +15,6 @@ export class UserClass {
   @Field()
   email: string;
 
-
   @Field()
   roleId: number;
 

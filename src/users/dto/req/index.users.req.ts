@@ -1,3 +1,3 @@
-export * from './sigUp.reqDto';
-export * from './forget.pass.reqDto';
-export * from './reset.pass.reqDto'
+export * from './sigUp.req.dto';
+export * from './forget.pass.req.dto';
+export * from './reset.pass.req.dto';

@@ -3,12 +3,12 @@ import { ProductObject } from 'src/products/entities/products.entity';
 
 @ObjectType()
 export class CategoryObject {
-    @Field(() => ID)
-    id: string;
+  @Field(() => ID)
+  id: string;
 
-    @Field()
-    name: string;
+  @Field()
+  name: string;
 
-    @Field(() => [ProductObject])
-    products: ProductObject[];
+  @Field(() => [ProductObject])
+  products: ProductObject[];
 }

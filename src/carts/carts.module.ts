@@ -6,15 +6,8 @@ import { PrismaModule } from 'src/helpers/prisma/prisma.module';
 import { CartsResolver } from './carts.resolver';
 
 @Module({
-  imports: [
-    ProductsModule, 
-    PrismaModule
-  ],
-  providers: [
-    CartsService,
-    ValidatorService,
-    CartsResolver
-  ],
-  exports: [CartsService]
+  imports: [ProductsModule, PrismaModule],
+  providers: [CartsService, ValidatorService, CartsResolver],
+  exports: [CartsService],
 })
 export class CartsModule {}

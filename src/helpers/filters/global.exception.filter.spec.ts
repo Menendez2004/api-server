@@ -1,5 +1,10 @@
 import { GlobalExceptionFilter } from './global.exception.filter';
-import { ArgumentsHost, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import { GqlArgumentsHost } from '@nestjs/graphql';
 import { Response, Request } from 'express';
 import { GraphQLError } from 'graphql';
@@ -70,7 +75,9 @@ describe('GlobalExceptionFilter', () => {
     jest.spyOn(GqlArgumentsHost, 'create').mockReturnValue(mockGqlHost as any);
     mockArgumentsHost.getType = jest.fn().mockReturnValue('graphql');
 
-    expect(() => exceptionFilter.catch(exception, mockArgumentsHost as ArgumentsHost)).toThrowError(
+    expect(() =>
+      exceptionFilter.catch(exception, mockArgumentsHost as ArgumentsHost),
+    ).toThrowError(
       new GraphQLError('GraphQL Test Error', {
         extensions: {
           code: 'InternalServerError',
@@ -99,15 +106,15 @@ describe('GlobalExceptionFilter', () => {
     expect(mockArgumentsHost.getType).toHaveBeenCalled();
 
     expect(mockLogger.error).toHaveBeenCalledWith(
-      `Unhandled exception in context type unknown: ${exception.message}`
+      `Unhandled exception in context type unknown: ${exception.message}`,
     );
   });
 
-
   it('should extract error details correctly', () => {
-
     const httpException = new HttpException('HTTP Error', HttpStatus.NOT_FOUND);
-    const httpDetails = (exceptionFilter as any).extractErrorDetails(httpException);
+    const httpDetails = (exceptionFilter as any).extractErrorDetails(
+      httpException,
+    );
 
     expect(httpDetails).toEqual({
       message: 'HTTP Error',
@@ -117,7 +124,9 @@ describe('GlobalExceptionFilter', () => {
     });
 
     const genericError = new Error('Generic Error');
-    const genericDetails = (exceptionFilter as any).extractErrorDetails(genericError);
+    const genericDetails = (exceptionFilter as any).extractErrorDetails(
+      genericError,
+    );
 
     expect(genericDetails).toEqual({
       message: 'Generic Error',
@@ -127,7 +136,9 @@ describe('GlobalExceptionFilter', () => {
     });
 
     const unknownError = { customMessage: 'Custom Error' }; // Simulate a non-standard error
-    const unknownDetails = (exceptionFilter as any).extractErrorDetails(unknownError);
+    const unknownDetails = (exceptionFilter as any).extractErrorDetails(
+      unknownError,
+    );
 
     expect(unknownDetails).toEqual({
       message: 'Unknown error',
@@ -136,8 +147,4 @@ describe('GlobalExceptionFilter', () => {
       code: undefined,
     });
   });
-
-
-
-
 });

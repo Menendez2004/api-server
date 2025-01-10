@@ -2,7 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaClient, Users } from '@prisma/client';
 
 export default async (prisma: PrismaClient): Promise<Users> => {
-    const email = process.env.MANAGER_EMAIL;
+    const email = process.env.EMAIL_USER;
     if (!email) {
         throw new Error('MANAGER_EMAIL environment variable is not set');
     }

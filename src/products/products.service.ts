@@ -6,13 +6,11 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { PaginationInput } from '../helpers/pagination/pagination.input';
-import { PaginationMeta } from '../helpers/pagination/pagination.meta';
 import { PrismaService } from '../helpers/prisma/prisma.service';
-import { DeletedProductsRes, UpdateProductRes, CreateProductsRes } from './dto/res/index.res';
+import { UpdateProductRes, CreateProductsRes } from './dto/res/index.res';
 import { ValidatorService } from '../helpers/service/validator.service';
 import { ProductFiltersInput } from './dto/filters/product.input.filter';
 import { SortingProductInput } from './dto/products.sorting.input';
-import { ProductType } from './dto/products.intefaces.dto';
 import { UpdateProductArg } from './dto/args/update.product.args';
 import { CreateProductInput } from './dto/products.create.input';
 import { CloudinaryService } from '../helpers/cloudinary/cloudinary.service';
@@ -22,7 +20,7 @@ import { plainToInstance } from 'class-transformer';
 import { UpdateProductInput } from './dto/products.update.input';
 import { ProductsPagination } from './dto/products.pagination';
 import { OperationType } from '../helpers/enums/operation.type.enum';
-import { UpdateProductImagesArgs } from './dto/args/update.product.imageArg';
+import { UpdateProductImagesArgs } from './dto/args/update.product.image.args';
 
 @Injectable()
 export class ProductsService {
@@ -33,7 +31,7 @@ export class ProductsService {
     private readonly prismaService: PrismaService,
     private readonly validatorService: ValidatorService,
     private readonly cloudinaryService: CloudinaryService,
-  ) { }
+  ) {}
 
   async findAll(
     filters?: ProductFiltersInput,
@@ -57,7 +55,7 @@ export class ProductsService {
     };
 
     const orderBy = sortBy
-      ? [{ [sortBy.field]: sortBy.order.toLowerCase() as 'asc' | 'desc' }]
+      ? [{ [sortBy.field]: sortBy.order as 'asc' | 'desc' }]
       : [{ price: 'desc' as 'asc' | 'desc' }];
 
     const [items, totalItems] = await Promise.all([
@@ -84,10 +82,6 @@ export class ProductsService {
     };
   }
 
-  async findOne(id: string): Promise<ProductType> {
-    return this.validatorService.findOneProductById({ id });
-  }
-
   async createProduct(input: CreateProductInput): Promise<CreateProductsRes> {
     const { categoryId, ...data } = input;
     if (!categoryId) {
@@ -106,9 +100,9 @@ export class ProductsService {
 
   async updateProductData(
     id: string,
-    data: UpdateProductArg
+    data: UpdateProductArg,
   ): Promise<UpdateProductRes> {
-    await this.findOne(id);
+    await this.validatorService.ensureProductExists(id);
 
     if (data.stock <= 0) data.isAvailable = false;
     const update = this.removeNullProperties({
@@ -121,11 +115,9 @@ export class ProductsService {
     const product = await this.prismaService.products.update({
       where: { id },
       data: update,
-    })
+    });
     return plainToInstance(UpdateProductRes, product);
-
   }
-
 
   async associateProductWithCategories(
     categories: number[],
@@ -145,7 +137,6 @@ export class ProductsService {
     producId: string,
     image: Express.Multer.File,
   ): Promise<ProductImages> {
-    await this.validatorService.findOneProductById({ id: producId });
     const uploadedFile = await this.cloudinaryService.uploadFile(image);
 
     const imageCreationData: Prisma.ProductImagesCreateInput = {
@@ -170,7 +161,7 @@ export class ProductsService {
       }
     } else if (updateImage.operation === 'REMOVE') {
       for (const publicId of updateImage.publicImageId) {
-        await this.removeProductImages( publicId);
+        await this.removeProductImages(publicId);
       }
     }
   }
@@ -267,9 +258,11 @@ export class ProductsService {
     return product.price;
   }
 
-  private removeNullProperties<T extends Record<string, any>>(obj: T): Partial<T> {
+  private removeNullProperties<T extends Record<string, any>>(
+    obj: T,
+  ): Partial<T> {
     return Object.fromEntries(
-      Object.entries(obj).filter(([_, value]) => value != null)
+      Object.entries(obj).filter(([value]) => value != null),
     ) as Partial<T>;
   }
 
@@ -282,8 +275,10 @@ export class ProductsService {
     const ERRORS = {
       INVALID_PATH: `Invalid path. Only "${SUPPORTED_PATH}" is supported.`,
       INVALID_OPERATION: `Invalid operation. Supported operations are: ${SUPPORTED_OPERATIONS.join(', ')}.`,
-      ADD_OPERATION_REQUIRES_IMAGES: 'The "add" operation requires at least one uploaded image file.',
-      REMOVE_OPERATION_REQUIRES_ID: 'The "remove" operation requires at least one public image identifier.',
+      ADD_OPERATION_REQUIRES_IMAGES:
+        'The "add" operation requires at least one uploaded image file.',
+      REMOVE_OPERATION_REQUIRES_ID:
+        'The "remove" operation requires at least one public image identifier.',
     };
 
     if (path !== SUPPORTED_PATH) {
@@ -294,14 +289,18 @@ export class ProductsService {
       throw new BadRequestException(ERRORS.INVALID_OPERATION);
     }
 
-    if (operation === 'ADD' && (!uploadedImages || uploadedImages.length === 0)) {
+    if (
+      operation === 'ADD' &&
+      (!uploadedImages || uploadedImages.length === 0)
+    ) {
       throw new BadRequestException(ERRORS.ADD_OPERATION_REQUIRES_IMAGES);
     }
 
-    if (operation === 'REMOVE' && (!publicImageId || publicImageId.length === 0)) {
+    if (
+      operation === 'REMOVE' &&
+      (!publicImageId || publicImageId.length === 0)
+    ) {
       throw new BadRequestException(ERRORS.REMOVE_OPERATION_REQUIRES_ID);
     }
   }
-
-
 }

@@ -20,7 +20,7 @@ describe('RolesGuard', () => {
     jest.spyOn(reflector, 'get').mockReturnValue(undefined);
 
     const mockExecutionContext = {
-      getHandler: jest.fn().mockReturnValue(() => { }),
+      getHandler: jest.fn().mockReturnValue(() => {}),
     } as unknown as ExecutionContext;
 
     const result = rolesGuard.canActivate(mockExecutionContext);
@@ -30,34 +30,28 @@ describe('RolesGuard', () => {
   });
 
   it('should return true if the user has a required role', () => {
-    jest
-      .spyOn(reflector, 'get')
-      .mockReturnValue(['MANAGER', 'CLIENT']);
-    ( HandleContext as jest.Mock).mockReturnValue({
+    jest.spyOn(reflector, 'get').mockReturnValue(['MANAGER', 'CLIENT']);
+    (HandleContext as jest.Mock).mockReturnValue({
       user: { role: 'MANAGER' },
     });
 
     const mockExecutionContext = {
-      getHandler: jest.fn().mockReturnValue(() => { }),
+      getHandler: jest.fn().mockReturnValue(() => {}),
     } as unknown as ExecutionContext;
 
     const result = rolesGuard.canActivate(mockExecutionContext);
 
     expect(result).toBe(true);
     expect(reflector.get).toHaveBeenCalledWith('roles', expect.any(Function));
-    expect( HandleContext).toHaveBeenCalledWith(
-      mockExecutionContext,
-    );
+    expect(HandleContext).toHaveBeenCalledWith(mockExecutionContext);
   });
 
   it('should throw UnauthorizedException if the user or role is missing', () => {
-    jest
-      .spyOn(reflector, 'get')
-      .mockReturnValue(['MANAGER', 'CLIENT']);
+    jest.spyOn(reflector, 'get').mockReturnValue(['MANAGER', 'CLIENT']);
     (HandleContext as jest.Mock).mockReturnValue({});
 
     const mockExecutionContext = {
-      getHandler: jest.fn().mockReturnValue(() => { }),
+      getHandler: jest.fn().mockReturnValue(() => {}),
     } as unknown as ExecutionContext;
 
     expect(() => rolesGuard.canActivate(mockExecutionContext)).toThrow(
@@ -65,8 +59,6 @@ describe('RolesGuard', () => {
     );
 
     expect(reflector.get).toHaveBeenCalledWith('roles', expect.any(Function));
-    expect(HandleContext).toHaveBeenCalledWith(
-      mockExecutionContext,
-    );
+    expect(HandleContext).toHaveBeenCalledWith(mockExecutionContext);
   });
 });

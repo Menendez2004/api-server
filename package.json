@@ -1,8 +1,9 @@
 {
+  
   "name": "api-server",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Nerdery ",
+  "author": "kevin menendez",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -20,6 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed": "ts-node prisma/seeds/index.seed.ts"
   },
+
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/apollo": "^12.2.2",
@@ -95,6 +97,29 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "coveragePathIgnorePatterns": [
+    "<rootDir>/.*\\.module\\.ts$",
+    "<rootDir>/.*\\.dto\\.ts$",
+    "<rootDir>/.*\\.req\\.ts$",
+    "<rootDir>/.*\\.res\\.ts$",
+    "<rootDir>/.*\\.entity\\.ts$",
+    "<rootDir>/.*\\.args\\.ts$",
+    "<rootDir>/.*\\.types\\.ts$",
+    "<rootDir>/.*\\.provider\\.ts$",
+    "<rootDir>/.*\\.resolver\\.ts$",
+    "<rootDir>/.*\\.strategy\\.ts$",
+    "<rootDir>/.*\\.controller\\.ts$",
+    "<rootDir>/.*\\.model\\.ts$",
+    "<rootDir>/.*\\.decorator\\.ts$",
+    "<rootDir>/.*\\.pagination\\.ts$",
+    "<rootDir>/.*\\.helper\\.ts$",
+    "<rootDir>/.*\\.main\\.ts$",
+    "<rootDir>/.*\\.meta\\.ts$"
+
+
+
+    
+  ],
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],

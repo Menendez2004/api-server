@@ -29,9 +29,13 @@ describe('JwtAuthGuard', () => {
     it('should throw an error if HandleContext fails', async () => {
       const mockContext = {} as ExecutionContext;
 
-      (HandleContext as jest.Mock).mockRejectedValue(new Error('HandleContext error'));
+      (HandleContext as jest.Mock).mockRejectedValue(
+        new Error('HandleContext error'),
+      );
 
-      await expect(jwtAuthGuard.getRequest(mockContext)).rejects.toThrow('HandleContext error');
+      await expect(jwtAuthGuard.getRequest(mockContext)).rejects.toThrow(
+        'HandleContext error',
+      );
     });
   });
 
@@ -53,19 +57,26 @@ describe('JwtAuthGuard', () => {
     it('should throw the error if one is provided', () => {
       const mockError = new Error('Auth error');
 
-      expect(() => jwtAuthGuard.handleRequest(mockError, null, null)).toThrow(mockError);
+      expect(() => jwtAuthGuard.handleRequest(mockError, null, null)).toThrow(
+        mockError,
+      );
     });
 
     it('should log the error and info if authentication fails', () => {
       const mockError = new Error('Auth error');
-      const mockConsoleError = jest.spyOn(console, 'error').mockImplementation();
+      const mockConsoleError = jest
+        .spyOn(console, 'error')
+        .mockImplementation();
       const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation();
 
       try {
         jwtAuthGuard.handleRequest(mockError, null, 'Invalid token');
       } catch {}
 
-      expect(mockConsoleLog).toHaveBeenCalledWith(UnauthorizedException, mockError);
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        UnauthorizedException,
+        mockError,
+      );
 
       mockConsoleError.mockRestore();
       mockConsoleLog.mockRestore();

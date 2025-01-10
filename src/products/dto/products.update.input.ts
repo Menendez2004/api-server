@@ -3,19 +3,18 @@ import { Field, InputType, Int, PartialType } from '@nestjs/graphql';
 import { CreateProductInput } from './products.create.input';
 import { OperationType } from '../../helpers/enums/operation.type.enum';
 
-
 @InputType()
 export class UpdateProductInput extends PartialType(CreateProductInput) {
-    @Field()
-    @IsString()
-    @IsUUID()
-    id: string;
+  @Field()
+  @IsString()
+  @IsUUID()
+  id: string;
 
-    @IsEnum(OperationType)
-    operation: OperationType;
+  @IsEnum(OperationType)
+  operation: OperationType;
 
-    @Field( () => [Int!]!)
-    @IsArray()
-    @IsInt()
-    categories: number[];
+  @Field(() => [Int!]!)
+  @IsArray()
+  @IsInt()
+  categories: number[];
 }

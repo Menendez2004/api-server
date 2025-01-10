@@ -7,13 +7,8 @@ import { UsersModule } from 'src/users/users.module';
 import { OrdersResolver } from './orders.resolver';
 
 @Module({
-  imports: [
-    ProductsModule,
-    PrismaModule,
-    CartsModule,
-    UsersModule
-  ],
+  imports: [ProductsModule, PrismaModule, CartsModule, UsersModule],
   providers: [OrdersService, OrdersResolver],
-  exports: [OrdersService]
+  exports: [OrdersService],
 })
 export class OrdersModule {}

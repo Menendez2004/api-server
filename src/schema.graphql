@@ -18,6 +18,7 @@ type ImagesTypes {
   id: ID!
   productId: String!
   imageUrl: String!
+  publicId: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -51,26 +52,25 @@ type CartType {
 }
 
 type RemoveProductCartRes implements RecordDeletion {
-  deleted_at: DateTime!
+  deletedAt: DateTime!
 }
 
 interface RecordDeletion {
-  deleted_at: DateTime!
+  deletedAt: DateTime!
 }
 
 type UpdateProductCartRes implements RecordUpdate {
-  updated_at: DateTime!
   updatedAt: DateTime!
 }
 
 interface RecordUpdate {
-  updated_at: DateTime!
+  updatedAt: DateTime!
 }
 
 type CreateProductsRes {
   id: ID!
   name: String!
-  CreatedAt: String!
+  createdAt: String!
 }
 
 type DeletedProductsRes {
@@ -234,7 +234,7 @@ type Mutation {
 
 input UpsertCartItemInput {
   productId: String!
-  cartId: String!
+  cartId: String
   quantity: Int!
 }
 
@@ -249,7 +249,7 @@ input CreateProductInput {
   price: Int!
   categoryId: [Int!]!
   stock: Int!
-  isAvailable: Boolean! = true
+  isAvailable: Boolean!
 }
 
 """
@@ -263,7 +263,6 @@ type AddFavoriteRes implements NewRecordInfo {
 }
 
 type RemoveFavoriteRes implements RecordDeletion {
-  deleted_at: DateTime!
   deletedAt: DateTime!
 }
 

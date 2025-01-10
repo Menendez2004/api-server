@@ -16,5 +16,4 @@ export class NewOrderArg {
   @IsString()
   @IsNotEmpty()
   address?: string;
-
 }

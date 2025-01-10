@@ -1,3 +1,3 @@
 export class AddPaymentRes {
-    clientSecret: string;
+  clientSecret: string;
 }

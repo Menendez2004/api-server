@@ -4,15 +4,9 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { CloudinaryService } from './cloudinary.service';
 import { ConfigurationModule } from '../configuration/configuration.module';
 
-
 @Module({
-  imports: [PrismaModule,
-    ConfigurationModule],
-  providers: [
-    CloudinaryProvider,
-    CloudinaryService],
-  exports: [
-    CloudinaryProvider,
-    CloudinaryService],
+  imports: [PrismaModule, ConfigurationModule],
+  providers: [CloudinaryProvider, CloudinaryService],
+  exports: [CloudinaryProvider, CloudinaryService],
 })
-export class CloudinaryModule { }
+export class CloudinaryModule {}
