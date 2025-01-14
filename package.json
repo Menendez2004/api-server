@@ -1,5 +1,4 @@
 {
-  
   "name": "api-server",
   "version": "0.0.1",
   "description": "Nerdery ",
@@ -19,9 +18,10 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "seed": "ts-node prisma/seeds/index.seed.ts"
-  },
+    "seed": "ts-node prisma/seeds/index.seed.ts",
+    "clear_jest": "jest --clearCache"
 
+  },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/apollo": "^12.2.2",
@@ -38,7 +38,6 @@
     "@prisma/client": "^6.1.0",
     "@types/multer": "^1.4.12",
     "apollo-server-express": "^3.13.0",
-    "argon2": "^0.41.1",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
@@ -98,27 +97,24 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "coveragePathIgnorePatterns": [
-    "<rootDir>/.*\\.module\\.ts$",
-    "<rootDir>/.*\\.dto\\.ts$",
-    "<rootDir>/.*\\.req\\.ts$",
-    "<rootDir>/.*\\.res\\.ts$",
-    "<rootDir>/.*\\.entity\\.ts$",
-    "<rootDir>/.*\\.args\\.ts$",
-    "<rootDir>/.*\\.types\\.ts$",
-    "<rootDir>/.*\\.provider\\.ts$",
-    "<rootDir>/.*\\.resolver\\.ts$",
-    "<rootDir>/.*\\.strategy\\.ts$",
-    "<rootDir>/.*\\.controller\\.ts$",
-    "<rootDir>/.*\\.model\\.ts$",
-    "<rootDir>/.*\\.pagination\\.ts$",
-    "<rootDir>/.*\\.helper\\.ts$",
-    "<rootDir>/.*\\.main\\.ts$",
-    "<rootDir>/.*\\.meta\\.ts$"
-
-
-
-    
-  ],
+      "<rootDir>/.*\\.module\\.ts$",
+      "<rootDir>/.*\\.dto\\.ts$",
+      "<rootDir>/.*\\.req\\.ts$",
+      "<rootDir>/.*\\.res\\.ts$",
+      "<rootDir>/.*\\.entity\\.ts$",
+      "<rootDir>/.*\\.args\\.ts$",
+      "<rootDir>/.*\\.types\\.ts$",
+      "<rootDir>/.*\\.provider\\.ts$",
+      "<rootDir>/.*\\.resolver\\.ts$",
+      "<rootDir>/.*\\.strategy\\.ts$",
+      "<rootDir>/.*\\.controller\\.ts$",
+      "<rootDir>/.*\\.model\\.ts$",
+      "<rootDir>/.*\\.pagination\\.ts$",
+      "<rootDir>/.*\\.helper\\.ts$",
+      "<rootDir>/main\\.ts$",
+      "<rootDir>/.*\\.meta\\.ts$",
+      "src/helpers/prisma/prisma.service.ts$"
+    ],
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],

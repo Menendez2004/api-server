@@ -8,39 +8,56 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 
+jest.mock('bcrypt', () => ({
+  hash: jest.fn(),
+  compare: jest.fn(),
+}));
 describe('UsersService', () => {
   let userService: UsersService;
   let prismaService: PrismaService;
   let tokenService: TokenService;
+  let mockPrismaUsers;
+  let mockPrismaUserRoles;
+  let mockPrismaVerificationTokens;
+  let mockTokenService;
 
   beforeEach(async () => {
+    mockPrismaUsers = {
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      findMany: jest.fn(),
+      update: jest.fn(),
+    };
+
+    mockPrismaUserRoles = {
+      findUnique: jest.fn(),
+    };
+
+    mockPrismaVerificationTokens = {
+      update: jest.fn(),
+    };
+
+    mockTokenService = {
+      findAuthToken: jest.fn(),
+      encodeToken: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
         {
           provide: PrismaService,
           useValue: {
-            users: {
-              findUnique: jest.fn(),
-              create: jest.fn(),
-              findMany: jest.fn(),
-              update: jest.fn(),
-            },
-            userRoles: {
-              findUnique: jest.fn(),
-            },
-            verificationTokens: {
-              update: jest.fn(),
-            },
+            users: mockPrismaUsers,
+            userRoles: mockPrismaUserRoles,
+            verificationTokens: mockPrismaVerificationTokens,
           },
         },
         {
           provide: TokenService,
-          useValue: {
-            findAuthToken: jest.fn(),
-            encodeToken: jest.fn(),
-          },
+          useValue: mockTokenService,
         },
       ],
     }).compile();
@@ -57,7 +74,8 @@ describe('UsersService', () => {
         id: '0fe3dbd4-aee0-47db-ac4e-56e2e3382a15',
         email: 'johndoe@example.com',
       } as any;
-      jest.spyOn(prismaService.users, 'create').mockResolvedValue(userMock);
+
+      mockPrismaUsers.create.mockResolvedValue(userMock);
 
       const result = await userService.createUser(MocksUserService.user);
       expect(prismaService.users.create).toHaveBeenCalledWith({
@@ -67,16 +85,18 @@ describe('UsersService', () => {
     });
 
     it('this should return an error if the user creation fails  ', async () => {
-      jest
-        .spyOn(prismaService.users, 'create')
-        .mockRejectedValue(new Error('Error creating user'));
+      mockPrismaUsers.create.mockRejectedValue(
+        new Error('Error creating user'),
+      );
     });
   });
 
   describe('findById', () => {
     it('should return a user by ID', async () => {
       const userMock = AuthentificationMock.user;
-      jest.spyOn(prismaService.users, 'findUnique').mockResolvedValue(userMock);
+
+      mockPrismaUsers.findUnique.mockResolvedValue(userMock);
+
       const result = await userService.findById(userMock.id);
       expect(prismaService.users.findUnique).toHaveBeenCalledWith({
         where: { id: userMock.id },
@@ -84,15 +104,15 @@ describe('UsersService', () => {
       expect(result).toEqual(userMock);
     });
     it('should throw NotFoundException if user is not found', async () => {
-      jest.spyOn(prismaService.users, 'findUnique').mockResolvedValue(null);
+      mockPrismaUsers.findUnique.mockResolvedValue(null);
+
       await expect(userService.findById('non-existent-id')).rejects.toThrow(
         NotFoundException,
       );
     });
     it('should throw NotFoundException on database errors', async () => {
-      jest
-        .spyOn(prismaService.users, 'findUnique')
-        .mockRejectedValue(new Error('Database error'));
+      mockPrismaUsers.findUnique.mockRejectedValue(new Error('Database error'));
+
       await expect(userService.findById('error-id')).rejects.toThrow(
         NotFoundException,
       );
@@ -105,7 +125,9 @@ describe('UsersService', () => {
         id: '0fe3dbd4-aee0-47db-ac4e-56e2e3382a15',
         email: 'johndoe@example.com',
       } as any;
-      jest.spyOn(prismaService.users, 'findUnique').mockResolvedValue(mockUser);
+
+      mockPrismaUsers.findUnique.mockResolvedValue(mockUser);
+
       const result = await userService.findByEmail(
         MocksUserService.userFindByEmail.email,
       );
@@ -116,7 +138,8 @@ describe('UsersService', () => {
     });
 
     it('should return null if no user is found', async () => {
-      jest.spyOn(prismaService.users, 'findUnique').mockResolvedValue(null);
+      mockPrismaUsers.findUnique.mockResolvedValue(null);
+
       const result = await userService.findByEmail('nonexistent@example.com');
       expect(prismaService.users.findUnique).toHaveBeenCalledWith({
         where: { email: 'nonexistent@example.com' },
@@ -125,9 +148,8 @@ describe('UsersService', () => {
     });
 
     it('should throw an error if an exception occurs', async () => {
-      jest
-        .spyOn(prismaService.users, 'findUnique')
-        .mockRejectedValue(new Error('Database error'));
+      mockPrismaUsers.findUnique.mockRejectedValue(new Error('Database error'));
+
       await expect(
         userService.findByEmail('error@example.com'),
       ).rejects.toThrow('Database error');
@@ -137,14 +159,15 @@ describe('UsersService', () => {
     it('should hash the password', async () => {
       const plainPassword = 'password123';
       const hashedPassword = 'hashedpassword123';
-      jest.spyOn(require('bcrypt'), 'hash').mockResolvedValue(hashedPassword);
+      (bcrypt.hash as jest.Mock).mockResolvedValue(hashedPassword);
+
       const result = await userService.hashPass(plainPassword);
+
       expect(result).toEqual(hashedPassword);
     });
     it('should throw InternalServerErrorException if hashing fails', async () => {
-      jest
-        .spyOn(require('bcrypt'), 'hash')
-        .mockRejectedValue(new Error('Hashing error'));
+      (bcrypt.hash as jest.Mock).mockRejectedValue(new Error('Hash error'));
+
       await expect(userService.hashPass('password123')).rejects.toThrow(
         InternalServerErrorException,
       );
@@ -156,9 +179,8 @@ describe('UsersService', () => {
       const userMock = AuthentificationMock.user;
       const userRoleMock = AuthentificationMock.userRole;
       jest.spyOn(userService, 'findById').mockResolvedValue(userMock as any);
-      jest
-        .spyOn(prismaService.userRoles, 'findUnique')
-        .mockResolvedValue(userRoleMock);
+      mockPrismaUserRoles.findUnique.mockResolvedValue(userRoleMock);
+
       const result = await userService.getUserRole(userMock.id);
       expect(userService.findById).toHaveBeenCalledWith(userMock.id);
       expect(prismaService.userRoles.findUnique).toHaveBeenCalledWith({
@@ -169,7 +191,7 @@ describe('UsersService', () => {
     it('should throw NotFoundException if user role is not found', async () => {
       const userMock = AuthentificationMock.user;
       jest.spyOn(userService, 'findById').mockResolvedValue(userMock as any);
-      jest.spyOn(prismaService.userRoles, 'findUnique').mockResolvedValue(null);
+      mockPrismaUserRoles.findUnique.mockResolvedValue(null);
       await expect(userService.getUserRole(userMock.id)).rejects.toThrow(
         NotFoundException,
       );
@@ -178,6 +200,7 @@ describe('UsersService', () => {
       jest
         .spyOn(userService, 'findById')
         .mockRejectedValue(new NotFoundException('User not found'));
+
       await expect(userService.getUserRole('invalid-id')).rejects.toThrow(
         NotFoundException,
       );
@@ -188,13 +211,10 @@ describe('UsersService', () => {
       const verificationToken = 'valid-verification-token';
       const newPassword = 'hashedpassword123';
       const tokenMock = { id: 'token-id', userId: 'user-id' };
-      jest
-        .spyOn(tokenService, 'findAuthToken')
-        .mockResolvedValue(tokenMock as any);
-      jest.spyOn(prismaService.users, 'update').mockResolvedValue(true as any);
-      jest
-        .spyOn(prismaService.verificationTokens, 'update')
-        .mockResolvedValue(true as any);
+      mockTokenService.findAuthToken.mockResolvedValue(tokenMock);
+      mockPrismaUsers.update.mockResolvedValue(true as any);
+      mockPrismaVerificationTokens.update.mockResolvedValue(true);
+
       const result = await userService.resetPass(
         verificationToken,
         newPassword,
@@ -213,9 +233,10 @@ describe('UsersService', () => {
       expect(result).toBe(true);
     });
     it('should throw InternalServerErrorException if password reset fails', async () => {
-      jest
-        .spyOn(tokenService, 'findAuthToken')
-        .mockRejectedValue(new Error('Token error'));
+      mockTokenService.findAuthToken.mockRejectedValue(
+        new Error('Token error'),
+      );
+
       await expect(
         userService.resetPass('invalid-token', 'hashedpassword123'),
       ).rejects.toThrow(InternalServerErrorException);

@@ -4,13 +4,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Categories } from '@prisma/client';
-import { PrismaService } from 'src/helpers/prisma/prisma.service';
+import { PrismaService } from '../helpers/prisma/prisma.service';
 import {
   CreateCategoryRes,
   RemoveCategoryRes,
 } from './dto/res/index.category.res';
 import { plainToInstance } from 'class-transformer';
-import { CategoriesClass } from './classes/categories.class';
+import { categories } from './classes/categories.class';
 
 @Injectable()
 export class CategoriesService {
@@ -40,12 +40,12 @@ export class CategoriesService {
       );
     }
     const producCategories = await this.prisma.productCategories.findMany({
-      where: { categoryId: id }, // should be another fucntion?? (review later!!!)
+      where: { categoryId: id },
     });
     if (producCategories.length > 0) {
       throw new BadRequestException(
         `Cannot delete category with products, this has products associated with it: 
-                ${producCategories.map((p) => p.productId).join(', ')}`, //it gonna return the id of the products associated with the category
+                ${producCategories.map((p) => p.productId).join(', ')}`,
       );
     }
     await this.prisma.categories.delete({
@@ -55,16 +55,14 @@ export class CategoriesService {
     return plainToInstance(RemoveCategoryRes, { deleted: true });
   }
 
-  async getAllCategories(): Promise<CategoriesClass[]> {
+  async getAllCategories() {
     const categories = await this.prisma.categories.findMany();
-    if (!categories) {
+
+    if (!categories.length) {
       throw new NotFoundException('No categories found');
     }
-    const transformedCategories = categories.map((category) =>
-      plainToInstance(CategoriesClass, category),
-    );
 
-    return transformedCategories;
+    return categories;
   }
 
   private async findCategoryByName(name: string): Promise<Categories | null> {

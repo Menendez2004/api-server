@@ -1,17 +1,6 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": ".",
-  "coveragePathIgnorePatterns": [
-    "<rootDir>/.*\\.module\\.ts$",
-    "<rootDir>/**/*.dto.ts",
-    "<rootDir>/**/dto/*",
-    "<rootDir>/**/*.res.ts",
-    "<rootDir>/**/*.req.ts",
-    "<rootDir>/**/*.arg.ts",
-    "<rootDir>/**/*.input.ts",
-    "<rootDir>/**/*.entity.ts",
-    "<rootDir>/**/*.type.ts"
-  ],
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {

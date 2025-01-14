@@ -1,6 +1,6 @@
 import { Resolver, Args, Mutation, Query } from '@nestjs/graphql';
 import { Logger, UseFilters } from '@nestjs/common';
-import { CategoriesClass } from './classes/categories.class';
+import { categories } from './classes/categories.class';
 import {
   CreateCategoryReq,
   RemoveCategoryReq,
@@ -32,16 +32,6 @@ export class CategoriesResolver {
     const category = await this.categoriesService.createCategory(name);
     this.logger.log(`Category created: ${category.id}`);
     return category;
-
-    //     try {
-    //         const category = await this.categoriesService.createCategory(name)
-    //         this.logger.log(`Category created: ${category.id}`);
-    //         return category;
-    //     } catch (err) {
-    //         this.logger.error(`Error creating category: ${err}`);
-    //         throw err;
-    //     }
-    // }
   }
 
   @AuthRole('MANAGER')
@@ -60,12 +50,12 @@ export class CategoriesResolver {
   }
 
   @AuthRole('MANAGER', 'CLIENT')
-  @Query(() => [CategoriesClass], {
+  @Query(() => [categories], {
     name: 'categories',
     description:
       'Get all categories in the system. Requires MANAGER or CLIENT role.',
   })
-  async getCategories(): Promise<CategoriesClass[]> {
+  async getCategories(): Promise<categories[]> {
     this.logger.log(
       `Fetching categories for a user with authorized roles: MANAGER or CLIENT`,
     );

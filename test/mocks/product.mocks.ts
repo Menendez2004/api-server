@@ -16,7 +16,7 @@ export class MocksProductService {
     id: '7e5756a7-a3cb-45b8-b36c-3d28094f1cba',
     name: ' low stock product',
     description: 'low stock product',
-    stock: 1,
+    stock: 10,
     isAvailable: true,
     price: 1000,
     createdAt: new Date(),

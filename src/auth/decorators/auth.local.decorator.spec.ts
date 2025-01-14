@@ -22,7 +22,6 @@ describe('AuthLocal Decorator', () => {
   });
 
   describe('Decorator composition', () => {
-    // Test class using the decorator
     class TestController {
       @AuthLocal()
       testMethod() {

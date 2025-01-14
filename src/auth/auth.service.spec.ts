@@ -4,46 +4,49 @@ import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from './auth.service';
 import { AuthentificationMock } from '../../test/mocks/authentication.mocks';
+
 jest.mock('bcrypt');
 
 describe('AuthService', () => {
   let authService: AuthService;
-  let usersService: UsersService;
-  let jwtService: JwtService;
+  let mockedUsersService: jest.Mocked<UsersService>;
+  let mockedJwtService: jest.Mocked<JwtService>;
 
   beforeEach(async () => {
+    const mockUsersService = {
+      findByEmail: jest.fn(),
+      getUserRole: jest.fn(),
+    };
+
+    const mockJwtService = {
+      sign: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         {
           provide: UsersService,
-          useValue: {
-            findByEmail: jest.fn(),
-            getUserRole: jest.fn(),
-          },
+          useValue: mockUsersService,
         },
         {
           provide: JwtService,
-          useValue: {
-            sign: jest.fn(),
-          },
+          useValue: mockJwtService,
         },
       ],
     }).compile();
 
     authService = module.get(AuthService);
-    usersService = module.get(UsersService);
-    jwtService = module.get(JwtService);
+    mockedUsersService = module.get(UsersService);
+    mockedJwtService = module.get(JwtService);
   });
 
   describe('login', () => {
-    it('should be return the access token to get credentials ', async () => {
-      jest
-        .spyOn(usersService, 'getUserRole')
-        .mockResolvedValue(AuthentificationMock.userRole);
-      jest
-        .spyOn(jwtService, 'sign')
-        .mockReturnValue(AuthentificationMock.accesToken);
+    it('should return the access token to get credentials', async () => {
+      mockedUsersService.getUserRole.mockResolvedValue(
+        AuthentificationMock.userRole,
+      );
+      mockedJwtService.sign.mockReturnValue(AuthentificationMock.accesToken);
 
       const result = await authService.login(AuthentificationMock.user);
       expect(result).toEqual({ accessToken: AuthentificationMock.accesToken });
@@ -52,7 +55,7 @@ describe('AuthService', () => {
 
   describe('verifyCredentials', () => {
     it('should throw an UnauthorizedException if the user is not registered', async () => {
-      jest.spyOn(usersService, 'findByEmail').mockResolvedValue(null);
+      mockedUsersService.findByEmail.mockResolvedValue(null);
 
       await expect(
         authService.verifyCredentials('johndoe@example.com', 'password123'),
@@ -60,12 +63,11 @@ describe('AuthService', () => {
     });
 
     it('should throw an UnauthorizedException if the password is incorrect', async () => {
-      jest
-        .spyOn(usersService, 'findByEmail')
-        .mockResolvedValue(AuthentificationMock.user);
-      jest
-        .spyOn(bcrypt, 'compare')
-        .mockImplementation(async (): Promise<boolean> => false);
+      // Setup mocks
+      mockedUsersService.findByEmail.mockResolvedValue(
+        AuthentificationMock.user,
+      );
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       await expect(
         authService.verifyCredentials('johndoe@example.com', 'wrongpassword'),
@@ -73,12 +75,10 @@ describe('AuthService', () => {
     });
 
     it('should return the user if the credentials are correct', async () => {
-      jest
-        .spyOn(usersService, 'findByEmail')
-        .mockResolvedValue(AuthentificationMock.user);
-      jest
-        .spyOn(bcrypt, 'compare')
-        .mockImplementation(async (): Promise<boolean> => true);
+      mockedUsersService.findByEmail.mockResolvedValue(
+        AuthentificationMock.user,
+      );
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
       const result = await authService.verifyCredentials(
         'johndoe@example.com',

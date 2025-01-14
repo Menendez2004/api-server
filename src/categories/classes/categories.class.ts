@@ -2,7 +2,7 @@ import { Field, ObjectType, ID } from '@nestjs/graphql';
 import { IsNotEmpty, IsString } from 'class-validator';
 
 @ObjectType()
-export class CategoriesClass {
+export class categories {
   @Field(() => ID)
   id: number;
 
@@ -11,9 +11,8 @@ export class CategoriesClass {
   @IsString()
   name: string;
 
-  @Field()
+  @Field({ name: 'createdAt' })
   createdAt: Date;
-
-  @Field()
+  @Field({ name: 'updatedAt' })
   updatedAt: Date;
 }

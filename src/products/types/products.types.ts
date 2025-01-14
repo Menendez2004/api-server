@@ -1,5 +1,5 @@
 import { Field, ObjectType, ID } from '@nestjs/graphql';
-import { CategoriesClass } from '../../categories/classes/categories.class';
+import { categories } from '../../categories/classes/categories.class';
 import { ImagesTypes } from './images.type';
 
 @ObjectType()
@@ -22,8 +22,8 @@ export class ProductsTypes {
   @Field()
   price: number;
 
-  @Field(() => [CategoriesClass])
-  categories: CategoriesClass[];
+  @Field(() => [categories])
+  categories: categories[];
 
   @Field(() => [ImagesTypes])
   images: ImagesTypes[];

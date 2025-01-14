@@ -191,93 +191,175 @@ describe('StripeService', () => {
         where: { orderId },
       });
     });
+  });
 
-    describe('handleStripeWebhook', () => {
-      it('should handle a successful payment intent webhook', async () => {
-        const mockEvent = {
-          type: 'payment_intent.succeeded',
-          data: {
-            object: {
-              id: 'pi_12345',
-              metadata: { orderId: 'order123' },
-              amount: 200,
-              payment_method: 'card',
-            },
-          },
-        };
-
-        const mockPayload = Buffer.from(JSON.stringify(mockEvent));
-        const mockHeaders = { 'stripe-signature': 'valid-signature' };
-
-        jest
-          .spyOn((stripeService as any).stripe.webhooks, 'constructEvent')
-          .mockReturnValue(mockEvent as any);
-
-        jest
-          .spyOn(prismaService.paymentDetails, 'update')
-          .mockResolvedValue(undefined);
-
-        await stripeService.handleStripeWebhook(mockPayload, mockHeaders);
-
-        expect(prismaService.paymentDetails.update).toHaveBeenCalledWith({
-          where: { paymentIntentId: 'pi_12345' },
-          data: {
-            statusId: 2,
-            paymentMethodId: 'card',
+  describe('handleStripeWebhook', () => {
+    it('should handle a successful payment intent webhook', async () => {
+      const mockEvent = {
+        type: 'payment_intent.succeeded',
+        data: {
+          object: {
+            id: 'pi_12345',
+            metadata: { orderId: 'order123' },
             amount: 200,
-            updatedAt: expect.any(Date),
-            paymentDate: expect.any(Date),
+            payment_method: 'card',
           },
+        },
+      };
+
+      const mockPayload = Buffer.from(JSON.stringify(mockEvent));
+      const mockHeaders = { 'stripe-signature': 'valid-signature' };
+
+      jest
+        .spyOn((stripeService as any).stripe.webhooks, 'constructEvent')
+        .mockReturnValue(mockEvent as any);
+
+      jest
+        .spyOn(prismaService.paymentDetails, 'update')
+        .mockResolvedValue(undefined);
+
+      await stripeService.handleStripeWebhook(mockPayload, mockHeaders);
+
+      expect(prismaService.paymentDetails.update).toHaveBeenCalledWith({
+        where: { paymentIntentId: 'pi_12345' },
+        data: {
+          statusId: 2,
+          paymentMethodId: 'card',
+          amount: 200,
+          updatedAt: expect.any(Date),
+          paymentDate: expect.any(Date),
+        },
+      });
+    });
+
+    it('should handle a failed payment intent webhook', async () => {
+      const mockEvent = {
+        type: 'payment_intent.payment_failed',
+        data: {
+          object: {
+            id: 'pi_12345',
+            metadata: { orderId: 'order123' },
+          },
+        },
+      };
+
+      const mockPayload = Buffer.from(JSON.stringify(mockEvent));
+      const mockHeaders = { 'stripe-signature': 'valid-signature' };
+
+      jest
+        .spyOn((stripeService as any).stripe.webhooks, 'constructEvent')
+        .mockReturnValue(mockEvent as any);
+
+      jest
+        .spyOn(prismaService.paymentDetails, 'update')
+        .mockResolvedValue(undefined);
+
+      await stripeService.handleStripeWebhook(mockPayload, mockHeaders);
+
+      expect(prismaService.paymentDetails.update).toHaveBeenCalledWith({
+        where: { paymentIntentId: 'pi_12345' },
+        data: {
+          statusId: 3,
+          updatedAt: expect.any(Date),
+        },
+      });
+    });
+
+    it('should throw NotAcceptableException for invalid webhook signature', async () => {
+      const mockPayload = Buffer.from(JSON.stringify({}));
+      const mockHeaders = { 'stripe-signature': 'invalid-signature' };
+
+      jest
+        .spyOn((stripeService as any).stripe.webhooks, 'constructEvent')
+        .mockImplementation(() => {
+          throw new NotAcceptableException('Invalid signature');
         });
-      });
 
-      it('should handle a failed payment intent webhook', async () => {
-        const mockEvent = {
-          type: 'payment_intent.payment_failed',
-          data: {
-            object: {
-              id: 'pi_12345',
-              metadata: { orderId: 'order123' },
-            },
+      await expect(
+        stripeService.handleStripeWebhook(mockPayload, mockHeaders),
+      ).rejects.toThrow(NotAcceptableException);
+    });
+
+    it('should log a warning for unhandled event types', async () => {
+      const mockEvent = {
+        type: 'unknown.event',
+        data: {
+          object: {
+            id: 'pi_12345',
+            metadata: { orderId: 'order123' },
           },
-        };
+        },
+      };
 
-        const mockPayload = Buffer.from(JSON.stringify(mockEvent));
-        const mockHeaders = { 'stripe-signature': 'valid-signature' };
+      const mockPayload = Buffer.from(JSON.stringify(mockEvent));
+      const mockHeaders = { 'stripe-signature': 'valid-signature' };
+      const loggerWarnSpy = jest.spyOn((stripeService as any).logger, 'warn');
 
-        jest
-          .spyOn((stripeService as any).stripe.webhooks, 'constructEvent')
-          .mockReturnValue(mockEvent as any);
+      jest
+        .spyOn((stripeService as any).stripe.webhooks, 'constructEvent')
+        .mockReturnValue(mockEvent as any);
 
-        jest
-          .spyOn(prismaService.paymentDetails, 'update')
-          .mockResolvedValue(undefined);
+      await stripeService.handleStripeWebhook(mockPayload, mockHeaders);
 
-        await stripeService.handleStripeWebhook(mockPayload, mockHeaders);
+      expect(loggerWarnSpy).toHaveBeenCalledWith(
+        'Unhandled event type: unknown.event',
+      );
+    });
 
-        expect(prismaService.paymentDetails.update).toHaveBeenCalledWith({
-          where: { paymentIntentId: 'pi_12345' },
-          data: {
-            statusId: 3,
-            updatedAt: expect.any(Date),
+    it('should handle successful payment intent with missing orderId', async () => {
+      const mockEvent = {
+        type: 'payment_intent.succeeded',
+        data: {
+          object: {
+            id: 'pi_12345',
+            metadata: {}, // Missing orderId
+            amount: 200,
+            payment_method: 'card',
           },
-        });
-      });
+        },
+      };
 
-      it('should throw NotAcceptableException for invalid webhook signature', async () => {
-        const mockPayload = Buffer.from(JSON.stringify({}));
-        const mockHeaders = { 'stripe-signature': 'invalid-signature' };
+      const mockPayload = Buffer.from(JSON.stringify(mockEvent));
+      const mockHeaders = { 'stripe-signature': 'valid-signature' };
+      const loggerErrorSpy = jest.spyOn((stripeService as any).logger, 'error');
 
-        jest
-          .spyOn((stripeService as any).stripe.webhooks, 'constructEvent')
-          .mockImplementation(() => {
-            throw new NotAcceptableException('Invalid signature');
-          });
+      jest
+        .spyOn((stripeService as any).stripe.webhooks, 'constructEvent')
+        .mockReturnValue(mockEvent as any);
 
-        await expect(
-          stripeService.handleStripeWebhook(mockPayload, mockHeaders),
-        ).rejects.toThrow(NotAcceptableException);
-      });
+      await stripeService.handleStripeWebhook(mockPayload, mockHeaders);
+
+      expect(loggerErrorSpy).toHaveBeenCalledWith(
+        'Payment Intent missing orderId metadata.',
+      );
+      expect(prismaService.paymentDetails.update).not.toHaveBeenCalled();
+    });
+
+    it('should handle failed payment intent with missing orderId', async () => {
+      const mockEvent = {
+        type: 'payment_intent.payment_failed',
+        data: {
+          object: {
+            id: 'pi_12345',
+            metadata: {},
+          },
+        },
+      };
+
+      const mockPayload = Buffer.from(JSON.stringify(mockEvent));
+      const mockHeaders = { 'stripe-signature': 'valid-signature' };
+      const loggerErrorSpy = jest.spyOn((stripeService as any).logger, 'error');
+
+      jest
+        .spyOn((stripeService as any).stripe.webhooks, 'constructEvent')
+        .mockReturnValue(mockEvent as any);
+
+      await stripeService.handleStripeWebhook(mockPayload, mockHeaders);
+
+      expect(loggerErrorSpy).toHaveBeenCalledWith(
+        'Payment Intent missing orderId metadata.',
+      );
+      expect(prismaService.paymentDetails.update).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,4 +1,8 @@
-import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import {
+  ExecutionContext,
+  UnauthorizedException,
+  Logger,
+} from '@nestjs/common';
 import { JwtAuthGuard } from './jwt.guard';
 import { HandleContext } from '../../helpers/filters/context.helper.filter';
 
@@ -8,16 +12,23 @@ jest.mock('../../helpers/filters/context.helper.filter', () => ({
 
 describe('JwtAuthGuard', () => {
   let jwtAuthGuard: JwtAuthGuard;
+  let mockLoggerError: jest.SpyInstance;
 
   beforeEach(() => {
     jwtAuthGuard = new JwtAuthGuard();
+    mockLoggerError = jest
+      .spyOn(Logger.prototype, 'error')
+      .mockImplementation();
+  });
+
+  afterEach(() => {
+    mockLoggerError.mockRestore();
   });
 
   describe('getRequest', () => {
     it('should call HandleContext with the given context and return the result', async () => {
       const mockContext = {} as ExecutionContext;
       const mockRequest = { user: { id: 1 } };
-
       (HandleContext as jest.Mock).mockResolvedValue(mockRequest);
 
       const result = await jwtAuthGuard.getRequest(mockContext);
@@ -28,7 +39,6 @@ describe('JwtAuthGuard', () => {
 
     it('should throw an error if HandleContext fails', async () => {
       const mockContext = {} as ExecutionContext;
-
       (HandleContext as jest.Mock).mockRejectedValue(
         new Error('HandleContext error'),
       );
@@ -42,9 +52,7 @@ describe('JwtAuthGuard', () => {
   describe('handleRequest', () => {
     it('should return the user if no errors and user is present', () => {
       const mockUser = { id: 1, name: 'John Doe' };
-
       const result = jwtAuthGuard.handleRequest(null, mockUser, null);
-
       expect(result).toBe(mockUser);
     });
 
@@ -56,7 +64,6 @@ describe('JwtAuthGuard', () => {
 
     it('should throw the error if one is provided', () => {
       const mockError = new Error('Auth error');
-
       expect(() => jwtAuthGuard.handleRequest(mockError, null, null)).toThrow(
         mockError,
       );
@@ -64,22 +71,15 @@ describe('JwtAuthGuard', () => {
 
     it('should log the error and info if authentication fails', () => {
       const mockError = new Error('Auth error');
-      const mockConsoleError = jest
-        .spyOn(console, 'error')
-        .mockImplementation();
-      const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation();
 
       try {
         jwtAuthGuard.handleRequest(mockError, null, 'Invalid token');
       } catch {}
 
-      expect(mockConsoleLog).toHaveBeenCalledWith(
-        UnauthorizedException,
-        mockError,
+      expect(mockLoggerError).toHaveBeenCalledWith(
+        'Unauthorized access attempt',
+        mockError || 'Invalid token',
       );
-
-      mockConsoleError.mockRestore();
-      mockConsoleLog.mockRestore();
     });
   });
 });

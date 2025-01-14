@@ -98,13 +98,11 @@ describe('GlobalExceptionFilter', () => {
     const mockLogger = new Logger();
     jest.spyOn(mockLogger, 'error');
 
-    // Inject the mocked logger into the filter
     (exceptionFilter as any).logger = mockLogger;
 
     exceptionFilter.catch(exception, mockArgumentsHost as ArgumentsHost);
 
     expect(mockArgumentsHost.getType).toHaveBeenCalled();
-
     expect(mockLogger.error).toHaveBeenCalledWith(
       `Unhandled exception in context type unknown: ${exception.message}`,
     );
@@ -130,12 +128,12 @@ describe('GlobalExceptionFilter', () => {
 
     expect(genericDetails).toEqual({
       message: 'Generic Error',
-      stack: expect.any(String), // Generic errors include a stack
+      stack: expect.any(String),
       status: HttpStatus.INTERNAL_SERVER_ERROR,
       code: undefined,
     });
 
-    const unknownError = { customMessage: 'Custom Error' }; // Simulate a non-standard error
+    const unknownError = { customMessage: 'Custom Error' };
     const unknownDetails = (exceptionFilter as any).extractErrorDetails(
       unknownError,
     );
@@ -145,6 +143,105 @@ describe('GlobalExceptionFilter', () => {
       stack: undefined,
       status: HttpStatus.INTERNAL_SERVER_ERROR,
       code: undefined,
+    });
+  });
+
+  describe('extractErrorStack', () => {
+    it('should return stack trace for Error instances', () => {
+      const error = new Error('Test error');
+      const stack = (exceptionFilter as any).extractErrorStack(error);
+      expect(stack).toBeDefined();
+      expect(stack).toBe(error.stack);
+    });
+
+    it('should return undefined for non-Error instances', () => {
+      const nonError = { message: 'Not an error' };
+      const stack = (exceptionFilter as any).extractErrorStack(nonError);
+      expect(stack).toBeUndefined();
+    });
+
+    it('should return undefined for null or undefined', () => {
+      expect((exceptionFilter as any).extractErrorStack(null)).toBeUndefined();
+      expect(
+        (exceptionFilter as any).extractErrorStack(undefined),
+      ).toBeUndefined();
+    });
+
+    it('should return undefined for primitive values', () => {
+      expect(
+        (exceptionFilter as any).extractErrorStack('string'),
+      ).toBeUndefined();
+      expect((exceptionFilter as any).extractErrorStack(123)).toBeUndefined();
+      expect((exceptionFilter as any).extractErrorStack(true)).toBeUndefined();
+    });
+  });
+
+  describe('extractErrorDetails with stack traces', () => {
+    it('should extract stack trace correctly for standard Error', () => {
+      const error = new Error('Test error');
+      const details = (exceptionFilter as any).extractErrorDetails(error);
+      expect(details.stack).toBe(error.stack);
+    });
+
+    it('should not include stack trace for HttpException', () => {
+      const httpError = new HttpException('Test error', HttpStatus.BAD_REQUEST);
+      const details = (exceptionFilter as any).extractErrorDetails(httpError);
+      expect(details.stack).toBeUndefined();
+    });
+
+    it('should handle nested error objects', () => {
+      const nestedError = {
+        error: new Error('Nested error'),
+      };
+      const details = (exceptionFilter as any).extractErrorDetails(nestedError);
+      expect(details.stack).toBeUndefined();
+      expect(details.message).toBe('Unknown error');
+    });
+  });
+
+  describe('extractErrorMessage', () => {
+    it('should extract message from HttpException with string response', () => {
+      const exception = new HttpException(
+        'Test message',
+        HttpStatus.BAD_REQUEST,
+      );
+      const message = (exceptionFilter as any).extractErrorMessage(exception);
+      expect(message).toBe('Test message');
+    });
+
+    it('should extract message from HttpException with object response', () => {
+      const exception = new HttpException(
+        { message: 'Test message', error: 'Bad Request' },
+        HttpStatus.BAD_REQUEST,
+      );
+      const message = (exceptionFilter as any).extractErrorMessage(exception);
+      expect(message).toBe('Test message');
+    });
+  });
+
+  describe('extractErrorCode', () => {
+    it('should extract error code from HttpException with object response', () => {
+      const exception = new HttpException(
+        { message: 'Test message', error: 'CustomError' },
+        HttpStatus.BAD_REQUEST,
+      );
+      const code = (exceptionFilter as any).extractErrorCode(exception);
+      expect(code).toBe('CustomError');
+    });
+
+    it('should return undefined for HttpException with string response', () => {
+      const exception = new HttpException(
+        'Test message',
+        HttpStatus.BAD_REQUEST,
+      );
+      const code = (exceptionFilter as any).extractErrorCode(exception);
+      expect(code).toBeUndefined();
+    });
+
+    it('should return undefined for non-HttpException', () => {
+      const error = new Error('Test error');
+      const code = (exceptionFilter as any).extractErrorCode(error);
+      expect(code).toBeUndefined();
     });
   });
 });

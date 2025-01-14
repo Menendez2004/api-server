@@ -43,7 +43,7 @@ export class CartServiceMocks {
     return {
       id: 'cart9876',
       userId,
-      cartItems: [
+      CartItems: [
         {
           id: 'item9876',
           productId: 'prod9876',
@@ -52,7 +52,7 @@ export class CartServiceMocks {
           updatedAt: new Date(),
           product: {
             id: 'prod9876',
-            name: 'Another Sample Product', // Adjusted for `CartType`
+            name: 'Another Sample Product',
             description: 'Another updated description',
             stock: 30,
             isAvailable: true,

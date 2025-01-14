@@ -21,6 +21,7 @@ import { UpdateProductInput } from './dto/products.update.input';
 import { ProductsPagination } from './dto/products.pagination';
 import { OperationType } from '../helpers/enums/operation.type.enum';
 import { UpdateProductImagesArgs } from './dto/args/update.product.image.args';
+import { UploadApiErrorResponse } from 'cloudinary';
 
 @Injectable()
 export class ProductsService {
@@ -137,15 +138,20 @@ export class ProductsService {
     producId: string,
     image: Express.Multer.File,
   ): Promise<ProductImages> {
-    const uploadedFile = await this.cloudinaryService.uploadFile(image);
+    await this.validatorService.findProductExitence(producId);
+    const uploadedFile = (await this.cloudinaryService.uploadFile(
+      image,
+    )) as UploadApiErrorResponse;
 
-    const imageCreationData: Prisma.ProductImagesCreateInput = {
-      id: producId,
-      imageUrl: uploadedFile.secure_url,
-      publicId: uploadedFile.public_id,
-      product: { connect: { id: producId } },
-    };
-    return this.addProductsImages(imageCreationData);
+    return this.prismaService.productImages.create({
+      data: {
+        imageUrl: uploadedFile.secure_url,
+        publicId: uploadedFile.public_id,
+        product: {
+          connect: { id: producId },
+        },
+      },
+    });
   }
 
   async updateProductImage(
@@ -169,7 +175,7 @@ export class ProductsService {
   async addProductsImages(
     data: Prisma.ProductImagesCreateInput,
   ): Promise<ProductImages> {
-    await this.validatorService.findProductExitence(data.product.connect?.id);
+    await this.validatorService.findProductExitence(data.product.connect.id);
     return this.prismaService.productImages.create({ data });
   }
 

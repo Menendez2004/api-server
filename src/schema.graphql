@@ -2,7 +2,7 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type CategoriesClass {
+type categories {
   id: ID!
   name: String!
   createdAt: DateTime!
@@ -30,7 +30,7 @@ type ProductsTypes {
   stock: Float!
   isAvailable: Boolean!
   price: Float!
-  categories: [CategoriesClass!]!
+  categories: [categories!]!
   images: [ImagesTypes!]!
   createdAt: DateTime!
   updatedAt: DateTime!

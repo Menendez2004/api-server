@@ -32,10 +32,9 @@ export class CartsService {
     const product = await this.validatorService.ensureProductExists(
       data.productId,
     );
-    if (data.quantity > product.stock) {
+    if (data.quantity > product['stock']) {
       throw new NotAcceptableException();
     }
-
     const cart = await this.fetchOrCreateCart(userId, data.cartId);
 
     const cartItem = await this.upsertCartItem(
@@ -46,7 +45,6 @@ export class CartsService {
 
     return plainToInstance(UpdateProductCartRes, cartItem);
   }
-
   async removeProductFromCart(
     userId: string,
     data: RemoveProductFromCartArgs,
@@ -75,7 +73,7 @@ export class CartsService {
   async fetchOrCreateCart(userId: string, cartId?: string): Promise<Carts> {
     if (!cartId) {
       const existingCart = await this.prismaService.carts.findUnique({
-        where: { userId },
+        where: { userId: userId },
       });
 
       if (existingCart) {
@@ -101,12 +99,12 @@ export class CartsService {
   ): Promise<CartItems> {
     return this.prismaService.cartItems.upsert({
       where: {
-        cartId_productId: { cartId, productId },
+        cartId_productId: { cartId: cartId, productId: productId },
       },
       update: { quantity },
       create: {
-        cartId,
-        productId,
+        cartId: cartId,
+        productId: productId,
         quantity,
       },
     });
@@ -164,7 +162,7 @@ export class CartsService {
     await this.findCartById(cartId);
 
     const cartItems = await this.prismaService.cartItems.findMany({
-      where: { cartId },
+      where: { cartId: cartId },
       include: this.getCartItemIncludeRelations(),
     });
 
@@ -173,8 +171,8 @@ export class CartsService {
       cartItems.map((item) => ({
         id: item.id,
         quantity: item.quantity,
-        created_at: item.createdAt,
-        updated_at: item.updatedAt,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
         product: this.transformProduct(item.product),
       })),
     );
@@ -208,7 +206,7 @@ export class CartsService {
         include: {
           product: {
             include: {
-              categories: true,
+              Categories: true,
               images: true,
             },
           },
