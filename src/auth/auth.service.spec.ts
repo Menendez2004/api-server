@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from './auth.service';
+import { InternalServerErrorException } from '@nestjs/common';
 import { AuthentificationMock } from '../../test/mocks/authentication.mocks';
 
 jest.mock('bcrypt');
@@ -90,6 +91,39 @@ describe('AuthService', () => {
   });
 
   describe('verifyPass', () => {
-    it('should', () => {});
+    const hashedPassword = 'hasedPassWord';
+    const plainPassword = 'password123';
+
+    it('should return true for matching passwords', async () => {
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      const result = await  authService.verifyPass(hashedPassword, plainPassword);
+
+      expect(result).toBe(true);
+      expect(bcrypt.compare).toHaveBeenCalledWith(
+        plainPassword,
+        hashedPassword,
+      );
+    });
+
+    it('should return false for non-matching passwords', async () => {
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+      const result = await authService.verifyPass(hashedPassword, plainPassword);
+
+      expect(result).toBe(false);
+      expect(bcrypt.compare).toHaveBeenCalledWith(
+        plainPassword,
+        hashedPassword,
+      );
+    });
+
+    it('should throw InternalServerErrorException when bcrypt.compare fails', async () => {
+      (bcrypt.compare as jest.Mock).mockRejectedValue(new Error('bcrypt error'));
+
+      await expect( authService.verifyPass(hashedPassword, plainPassword)).rejects.toThrow(
+        InternalServerErrorException,
+      );
+    });
   });
 });

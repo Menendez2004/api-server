@@ -77,7 +77,7 @@ describe('GlobalExceptionFilter', () => {
 
     expect(() =>
       exceptionFilter.catch(exception, mockArgumentsHost as ArgumentsHost),
-    ).toThrowError(
+    ).toThrow(
       new GraphQLError('GraphQL Test Error', {
         extensions: {
           code: 'InternalServerError',
@@ -89,6 +89,30 @@ describe('GlobalExceptionFilter', () => {
 
     expect(GqlArgumentsHost.create).toHaveBeenCalledWith(mockArgumentsHost);
     expect(mockGqlHost.getInfo).toHaveBeenCalled();
+  });
+
+
+  it('should handle non-Error exceptions correctly', () => {
+    const exception = 'String exception'; 
+    const mockInfo = { fieldName: 'testField' };
+    const mockGqlHost = {
+      getInfo: jest.fn().mockReturnValue(mockInfo),
+      getContext: jest.fn().mockReturnValue({}),
+    };
+    jest.spyOn(GqlArgumentsHost, 'create').mockReturnValue(mockGqlHost as any);
+    mockArgumentsHost.getType = jest.fn().mockReturnValue('graphql');
+
+    expect(() =>
+      exceptionFilter.catch(exception, mockArgumentsHost as ArgumentsHost),
+    ).toThrow(
+      new GraphQLError('Unknown error', {
+        extensions: {
+          code: 'InternalServerError',
+          date: expect.any(String),
+          status: 500,
+        },
+      }),
+    );
   });
 
   it('should log unhandled context types', () => {
@@ -207,6 +231,27 @@ describe('GlobalExceptionFilter', () => {
       );
       const message = (exceptionFilter as any).extractErrorMessage(exception);
       expect(message).toBe('Test message');
+    });
+    
+    it('should return default message when HttpException response object has no message', () => {
+      const exception = new HttpException(
+        { error: 'Bad Request' }, 
+        HttpStatus.BAD_REQUEST,
+      );
+      const message = (exceptionFilter as any).extractErrorMessage(exception);
+      expect(message).toBe('An unexpected error occurred');
+    });
+  
+    it('should extract message from Error instance', () => {
+      const exception = new Error('Test error');
+      const message = (exceptionFilter as any).extractErrorMessage(exception);
+      expect(message).toBe('Test error');
+    });
+  
+    it('should return "Unknown error" for non-Error exceptions', () => {
+      const exception = 'String exception';
+      const message = (exceptionFilter as any).extractErrorMessage(exception);
+      expect(message).toBe('Unknown error');
     });
 
     it('should extract message from HttpException with object response', () => {
