@@ -294,8 +294,6 @@ describe('ProductsService', () => {
         .spyOn(cloudinaryService, 'uploadFile')
         .mockResolvedValue(mockCloudinaryResponse);
 
-
-
       const mockImageRecord = {
         id: 'test-id',
         imageUrl: mockCloudinaryResponse.secure_url,

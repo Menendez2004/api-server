@@ -92,7 +92,9 @@ describe('FavoritesService', () => {
 
       const existingFavorite = FavoriteServiceMocks.existingFavorite;
 
-      (prismaService.favorites.findUnique as jest.Mock).mockResolvedValue(existingFavorite);
+      (prismaService.favorites.findUnique as jest.Mock).mockResolvedValue(
+        existingFavorite,
+      );
 
       const result = await service.toggleFavoriteStatus(userId, productId);
 
@@ -106,7 +108,6 @@ describe('FavoritesService', () => {
         }),
       );
     });
-    
 
     describe('getUserFavorites', () => {
       it('should return the user’s favorite products', async () => {
@@ -159,6 +160,5 @@ describe('FavoritesService', () => {
         expect(result).toEqual([]);
       });
     });
-
   });
 });

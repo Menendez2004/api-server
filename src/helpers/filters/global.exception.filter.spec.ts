@@ -91,9 +91,8 @@ describe('GlobalExceptionFilter', () => {
     expect(mockGqlHost.getInfo).toHaveBeenCalled();
   });
 
-
   it('should handle non-Error exceptions correctly', () => {
-    const exception = 'String exception'; 
+    const exception = 'String exception';
     const mockInfo = { fieldName: 'testField' };
     const mockGqlHost = {
       getInfo: jest.fn().mockReturnValue(mockInfo),
@@ -232,22 +231,22 @@ describe('GlobalExceptionFilter', () => {
       const message = (exceptionFilter as any).extractErrorMessage(exception);
       expect(message).toBe('Test message');
     });
-    
+
     it('should return default message when HttpException response object has no message', () => {
       const exception = new HttpException(
-        { error: 'Bad Request' }, 
+        { error: 'Bad Request' },
         HttpStatus.BAD_REQUEST,
       );
       const message = (exceptionFilter as any).extractErrorMessage(exception);
       expect(message).toBe('An unexpected error occurred');
     });
-  
+
     it('should extract message from Error instance', () => {
       const exception = new Error('Test error');
       const message = (exceptionFilter as any).extractErrorMessage(exception);
       expect(message).toBe('Test error');
     });
-  
+
     it('should return "Unknown error" for non-Error exceptions', () => {
       const exception = 'String exception';
       const message = (exceptionFilter as any).extractErrorMessage(exception);

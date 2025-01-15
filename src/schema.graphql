@@ -77,6 +77,11 @@ type DeletedProductsRes {
   deletedAt: String!
 }
 
+type UpdateProductRes implements RecordUpdate {
+  updatedAt: DateTime!
+  updated_at: DateTime!
+}
+
 type PaginationMeta {
   totalItems: Int!
   totalPages: Int!
@@ -183,6 +188,8 @@ type OrderDetailType {
 type Query {
   getCarts: CartType!
   findAllProducts(filters: ProductFiltersInput, sortBy: SortingProductInput, pagination: PaginationInput): ProductsPagination!
+  getProductImages(productId: String!): [ImagesTypes!]!
+  getProductPrice(productId: String!): Float!
   getFavorites: [FavoriteType!]!
   getOrderById(orderData: GetOrderArg!): OrderType!
 }
@@ -225,6 +232,7 @@ type Mutation {
   addOrUpdateCartProduct(data: UpsertCartItemInput!): UpdateProductCartRes!
   removeProductFromCart(data: RemoveProductFromCartArgs!): RemoveProductCartRes!
   createProduct(data: CreateProductInput!): CreateProductsRes!
+  updateProduct(id: String!, data: UpdateProductArg!): UpdateProductRes!
   removeProduct(id: String!): DeletedProductsRes!
 
   """Toggle the favorite status of a product for the authenticated user"""
@@ -250,6 +258,14 @@ input CreateProductInput {
   categoryId: [Int!]!
   stock: Int!
   isAvailable: Boolean!
+}
+
+input UpdateProductArg {
+  name: String!
+  description: String
+  stock: Int
+  isAvailable: Boolean
+  price: Int
 }
 
 """

@@ -97,7 +97,10 @@ describe('AuthService', () => {
     it('should return true for matching passwords', async () => {
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      const result = await  authService.verifyPass(hashedPassword, plainPassword);
+      const result = await authService.verifyPass(
+        hashedPassword,
+        plainPassword,
+      );
 
       expect(result).toBe(true);
       expect(bcrypt.compare).toHaveBeenCalledWith(
@@ -109,7 +112,10 @@ describe('AuthService', () => {
     it('should return false for non-matching passwords', async () => {
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      const result = await authService.verifyPass(hashedPassword, plainPassword);
+      const result = await authService.verifyPass(
+        hashedPassword,
+        plainPassword,
+      );
 
       expect(result).toBe(false);
       expect(bcrypt.compare).toHaveBeenCalledWith(
@@ -119,11 +125,13 @@ describe('AuthService', () => {
     });
 
     it('should throw InternalServerErrorException when bcrypt.compare fails', async () => {
-      (bcrypt.compare as jest.Mock).mockRejectedValue(new Error('bcrypt error'));
-
-      await expect( authService.verifyPass(hashedPassword, plainPassword)).rejects.toThrow(
-        InternalServerErrorException,
+      (bcrypt.compare as jest.Mock).mockRejectedValue(
+        new Error('bcrypt error'),
       );
+
+      await expect(
+        authService.verifyPass(hashedPassword, plainPassword),
+      ).rejects.toThrow(InternalServerErrorException);
     });
   });
 });

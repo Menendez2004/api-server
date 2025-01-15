@@ -87,19 +87,22 @@ describe('UsersService', () => {
     });
     it('should throw an error if email is already in use (Prisma error)', async () => {
       const existingUserEmail = 'existinguser@example.com';
-      mockPrismaUsers.findUnique.mockResolvedValue({ email: existingUserEmail });
-
-      await expect(userService.createUser({
+      mockPrismaUsers.findUnique.mockResolvedValue({
         email: existingUserEmail,
-        firstName: '',
-        lastName: '',
-        userName: '',
-        address: '',
-        password: ''
-      }))
-        .rejects.toThrow (new BadRequestException('Failed to create user'));
+      });
 
-      expect(prismaService.users.create).not.toHaveBeenCalled(); 
+      await expect(
+        userService.createUser({
+          email: existingUserEmail,
+          firstName: '',
+          lastName: '',
+          userName: '',
+          address: '',
+          password: '',
+        }),
+      ).rejects.toThrow(new BadRequestException('Failed to create user'));
+
+      expect(prismaService.users.create).not.toHaveBeenCalled();
     });
 
     describe('findById', () => {
@@ -122,7 +125,9 @@ describe('UsersService', () => {
         );
       });
       it('should throw NotFoundException on database errors', async () => {
-        mockPrismaUsers.findUnique.mockRejectedValue(new Error('Database error'));
+        mockPrismaUsers.findUnique.mockRejectedValue(
+          new Error('Database error'),
+        );
 
         await expect(userService.findById('error-id')).rejects.toThrow(
           NotFoundException,
@@ -159,7 +164,9 @@ describe('UsersService', () => {
       });
 
       it('should throw an error if an exception occurs', async () => {
-        mockPrismaUsers.findUnique.mockRejectedValue(new Error('Database error'));
+        mockPrismaUsers.findUnique.mockRejectedValue(
+          new Error('Database error'),
+        );
 
         await expect(
           userService.findByEmail('error@example.com'),
