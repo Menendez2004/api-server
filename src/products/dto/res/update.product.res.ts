@@ -6,7 +6,6 @@ import { Expose } from 'class-transformer';
   implements: () => RecordUpdate,
 })
 export class UpdateProductRes implements RecordUpdate {
-  @Field(() => Date!, { name: 'updated_at' })
-  @Expose({ name: 'updated_at' })
+  @Field(() => Date!)
   updatedAt: Date;
 }

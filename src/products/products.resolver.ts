@@ -12,7 +12,6 @@ import { ProductsPagination } from './dto/products.pagination';
 import { ProductFiltersInput } from './dto/filters/product.input.filter';
 import { SortingProductInput } from './dto/products.sorting.input';
 import { PaginationInput } from '../helpers/pagination/pagination.input';
-import { UpdateProductInput } from './dto/index.dto';
 import { ProductImages } from '@prisma/client';
 import { UpdateProductArg } from './dto/args/update.product.args';
 import { ImagesTypes } from './types/images.type';

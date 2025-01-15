@@ -1,6 +1,5 @@
 import { Resolver, Args, Mutation, Query } from '@nestjs/graphql';
 import { Logger, UseFilters } from '@nestjs/common';
-import { categories } from './classes/categories.class';
 import {
   CreateCategoryReq,
   RemoveCategoryReq,
@@ -9,9 +8,13 @@ import {
   CreateCategoryRes,
   RemoveCategoryRes,
 } from './dto/res/index.category.res';
-import { AuthRole } from 'src/auth/decorators/auth.roles.decorator';
-import { GlobalExceptionFilter } from 'src/helpers/filters/global.exception.filter';
+import { AuthRole } from '../auth/decorators/auth.roles.decorator';
+import { GlobalExceptionFilter } from '../helpers/filters/global.exception.filter';
 import { CategoriesService } from './categories.service';
+import { CategoryPagination } from './dto/category.pagination.dto';
+import { CategoryPaginationFilter } from './filters/category.pagination.filter';
+import { SortinCategoryInput } from './dto/category.sorting.input';
+import { PaginationInput } from '../helpers/pagination/index.pagination';
 
 @Resolver()
 @UseFilters(new GlobalExceptionFilter())
@@ -21,10 +24,7 @@ export class CategoriesResolver {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @AuthRole('MANAGER')
-  @Mutation(() => CreateCategoryRes, {
-    name: 'category creation',
-    description: 'Create a new category in the system. Requires MANAGER role.',
-  })
+  @Mutation(() => CreateCategoryRes)
   async createCategory(
     @Args('data') { name }: CreateCategoryReq,
   ): Promise<CreateCategoryRes> {
@@ -33,34 +33,22 @@ export class CategoriesResolver {
     this.logger.log(`Category created: ${category.id}`);
     return category;
   }
+  
+    @Query(()=> CategoryPagination )
+    async findAllCategories(
+      @Args( 'filters', {nullable: true}) filters?: CategoryPaginationFilter,
+      @Args('sortBy', {nullable: true}) sortBy?: SortinCategoryInput,
+      @Args('pagination', {nullable: true}) pagination?: PaginationInput,
+    ): Promise<CategoryPagination>{
+      return await this.categoriesService.findAllCategories( filters, sortBy, pagination);
+      
+    }
 
   @AuthRole('MANAGER')
-  @Mutation(() => RemoveCategoryRes, {
-    name: 'category removal',
-    description: 'Remove a category from the system. Requires MANAGER role.',
-  })
+  @Mutation(() => RemoveCategoryRes)
   async removeCategory(
     @Args('id') { id }: RemoveCategoryReq,
   ): Promise<RemoveCategoryRes> {
-    this.logger.log(`Request to remove category with ID: ${id}`);
-
-    await this.categoriesService.removeCategory(id);
-    this.logger.log(`Category successfully removed: ${id}`);
-    return { id };
-  }
-
-  @AuthRole('MANAGER', 'CLIENT')
-  @Query(() => [categories], {
-    name: 'categories',
-    description:
-      'Get all categories in the system. Requires MANAGER or CLIENT role.',
-  })
-  async getCategories(): Promise<categories[]> {
-    this.logger.log(
-      `Fetching categories for a user with authorized roles: MANAGER or CLIENT`,
-    );
-    const categories = await this.categoriesService.getAllCategories();
-    this.logger.log(`Found ${categories.length} categories`);
-    return categories;
+    return await this.categoriesService.removeCategory(id);
   }
 }
