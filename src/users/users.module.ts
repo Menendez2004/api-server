@@ -8,13 +8,8 @@ import { MailModule } from 'src/helpers/mail/mail.module';
 import { MailService } from 'src/helpers/mail/mail.service';
 
 @Module({
-  imports: [
-    PrismaModule,
-    TokenModule,
-    ConfigurationModule,
-    MailModule
-  ],
+  imports: [PrismaModule, TokenModule, ConfigurationModule, MailModule],
   providers: [UsersService, ConfigurationService, MailService],
-  exports: [UsersService]
+  exports: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}

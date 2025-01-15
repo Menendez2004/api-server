@@ -15,17 +15,21 @@ import { ConfigurationService } from 'src/helpers/configuration/configuration.se
     JwtModule.registerAsync({
       imports: [ConfigurationModule],
       useFactory: async (configService: ConfigurationService) => {
-        return{
+        return {
           secret: configService.jwtSecret,
           signOptions: { expiresIn: configService.jwtExpiration },
         };
       },
-      inject: [ConfigurationService]
-    })
+      inject: [ConfigurationService],
+    }),
   ],
 
-  providers: [AuthService, LocalPassportStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    LocalPassportStrategy,
+    JwtStrategy,
+    ConfigurationService,
+  ],
   exports: [AuthService, JwtModule],
 })
 export class AuthModule {}
-

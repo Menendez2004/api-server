@@ -1,17 +1,17 @@
 import { Field, ObjectType, ID } from '@nestjs/graphql';
-import { CartItemType } from './cart.item.type';
+import { CartItemType } from './cart.item.types';
 
 @ObjectType()
 export class CartType {
-    @Field(() => ID)
-    id: string;
+  @Field(() => ID)
+  id: string;
 
-    @Field(() => [CartItemType!]!)
-    cartItems: CartItemType[];
+  @Field(() => [CartItemType!]!)
+  cartItems: CartItemType[];
 
-    @Field()
-    createdAt: Date;
+  @Field()
+  createdAt: Date;
 
-    @Field()
-    updatedAt: Date;
+  @Field()
+  updatedAt: Date;
 }

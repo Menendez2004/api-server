@@ -1,1 +1,1 @@
-export * from './add.order.res'
+export * from './add.order.res';

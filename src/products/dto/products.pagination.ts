@@ -5,8 +5,8 @@ import { ProductType } from './products.intefaces.dto';
 
 @ObjectType()
 export class ProductsPagination {
-    @Field(()=> [ProductType]) 
-    collection: ProductType[];
-    @Field()
-    meta: PaginationMeta;
+  @Field(() => [ProductType])
+  collection: ProductType[];
+  @Field()
+  meta: PaginationMeta;
 }

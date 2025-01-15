@@ -4,13 +4,13 @@ import { IsString } from 'class-validator';
 
 @ObjectType()
 export class CreateCategoryRes {
-    @Field(() => Int!)
-    id: number;
+  @Field(() => Int!)
+  id: number;
 
-    @Field(() => String!)
-    @IsString()
-    name: string;
+  @Field(() => String!)
+  @IsString()
+  name: string;
 
-    @Field(() => Date!)
-    createdAt: Date;
+  @Field(() => Date!)
+  createdAt: Date;
 }

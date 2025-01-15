@@ -2,7 +2,7 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type CategoriesClass {
+type categories {
   id: ID!
   name: String!
   createdAt: DateTime!
@@ -18,6 +18,7 @@ type ImagesTypes {
   id: ID!
   productId: String!
   imageUrl: String!
+  publicId: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -29,7 +30,7 @@ type ProductsTypes {
   stock: Float!
   isAvailable: Boolean!
   price: Float!
-  categories: [CategoriesClass!]!
+  categories: [categories!]!
   images: [ImagesTypes!]!
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -51,30 +52,34 @@ type CartType {
 }
 
 type RemoveProductCartRes implements RecordDeletion {
-  deleted_at: DateTime!
+  deletedAt: DateTime!
 }
 
 interface RecordDeletion {
-  deleted_at: DateTime!
+  deletedAt: DateTime!
 }
 
 type UpdateProductCartRes implements RecordUpdate {
-  updated_at: DateTime!
   updatedAt: DateTime!
 }
 
 interface RecordUpdate {
-  updated_at: DateTime!
+  updatedAt: DateTime!
 }
 
 type CreateProductsRes {
   id: ID!
   name: String!
-  CreatedAt: String!
+  createdAt: String!
 }
 
 type DeletedProductsRes {
   deletedAt: String!
+}
+
+type UpdateProductRes implements RecordUpdate {
+  updatedAt: DateTime!
+  updated_at: DateTime!
 }
 
 type PaginationMeta {
@@ -171,7 +176,7 @@ type OrderType {
 
 type OrderDetailType {
   id: String!
-  ordeId: String!
+  orderId: String!
   productId: String!
   quantity: Int!
   price: Int!
@@ -183,6 +188,8 @@ type OrderDetailType {
 type Query {
   getCarts: CartType!
   findAllProducts(filters: ProductFiltersInput, sortBy: SortingProductInput, pagination: PaginationInput): ProductsPagination!
+  getProductImages(productId: String!): [ImagesTypes!]!
+  getProductPrice(productId: String!): Float!
   getFavorites: [FavoriteType!]!
   getOrderById(orderData: GetOrderArg!): OrderType!
 }
@@ -225,6 +232,7 @@ type Mutation {
   addOrUpdateCartProduct(data: UpsertCartItemInput!): UpdateProductCartRes!
   removeProductFromCart(data: RemoveProductFromCartArgs!): RemoveProductCartRes!
   createProduct(data: CreateProductInput!): CreateProductsRes!
+  updateProduct(id: String!, data: UpdateProductArg!): UpdateProductRes!
   removeProduct(id: String!): DeletedProductsRes!
 
   """Toggle the favorite status of a product for the authenticated user"""
@@ -234,7 +242,7 @@ type Mutation {
 
 input UpsertCartItemInput {
   productId: String!
-  cartId: String!
+  cartId: String
   quantity: Int!
 }
 
@@ -249,7 +257,15 @@ input CreateProductInput {
   price: Int!
   categoryId: [Int!]!
   stock: Int!
-  isAvailable: Boolean! = true
+  isAvailable: Boolean!
+}
+
+input UpdateProductArg {
+  name: String!
+  description: String
+  stock: Int
+  isAvailable: Boolean
+  price: Int
 }
 
 """
@@ -263,7 +279,6 @@ type AddFavoriteRes implements NewRecordInfo {
 }
 
 type RemoveFavoriteRes implements RecordDeletion {
-  deleted_at: DateTime!
   deletedAt: DateTime!
 }
 

@@ -1,2 +1,2 @@
-export * from './order.type';
-export * from './order.detail.type';
+export * from './order.types';
+export * from './order.detail.types';

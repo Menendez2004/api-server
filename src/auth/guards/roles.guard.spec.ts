@@ -1,40 +1,64 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { Reflector } from '@nestjs/core';
 import { RolesGuard } from './roles.guard';
+import { Reflector } from '@nestjs/core';
+import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { HandleContext } from '../../helpers/filters/context.helper.filter';
 
-class ReflectorMock {
-  get = jest.fn();
-  getAll = jest.fn();
-  getAllAndMerge = jest.fn();
-  getAllAndOverride = jest.fn();
-}
+jest.mock('../../helpers/filters/context.helper.filter', () => ({
+  HandleContext: jest.fn(),
+}));
 
 describe('RolesGuard', () => {
-  let service: RolesGuard;
-  let reflector: ReflectorMock;
+  let rolesGuard: RolesGuard;
+  let reflector: Reflector;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [RolesGuard],
-      providers: [
-        {
-          provide: Reflector,
-          useClass: ReflectorMock,
-        },
-      ],
-    }).compile();
-
-    service = module.get(RolesGuard);
-    reflector = module.get(Reflector);
+  beforeEach(() => {
+    reflector = new Reflector();
+    rolesGuard = new RolesGuard(reflector);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  it('should return true if no roles are required', () => {
+    jest.spyOn(reflector, 'get').mockReturnValue(undefined);
+
+    const mockExecutionContext = {
+      getHandler: jest.fn().mockReturnValue(() => {}),
+    } as unknown as ExecutionContext;
+
+    const result = rolesGuard.canActivate(mockExecutionContext);
+
+    expect(result).toBe(true);
+    expect(reflector.get).toHaveBeenCalledWith('roles', expect.any(Function));
   });
 
-  describe('canActivate', () => {
-    it('should', () => {
-
+  it('should return true if the user has a required role', () => {
+    jest.spyOn(reflector, 'get').mockReturnValue(['MANAGER', 'CLIENT']);
+    (HandleContext as jest.Mock).mockReturnValue({
+      user: { role: 'MANAGER' },
     });
+
+    const mockExecutionContext = {
+      getHandler: jest.fn().mockReturnValue(() => {}),
+    } as unknown as ExecutionContext;
+
+    const result = rolesGuard.canActivate(mockExecutionContext);
+
+    expect(result).toBe(true);
+    expect(reflector.get).toHaveBeenCalledWith('roles', expect.any(Function));
+    expect(HandleContext).toHaveBeenCalledWith(mockExecutionContext);
+  });
+
+  it('should throw UnauthorizedException if the user or role is missing', () => {
+    jest.spyOn(reflector, 'get').mockReturnValue(['MANAGER', 'CLIENT']);
+    (HandleContext as jest.Mock).mockReturnValue({});
+
+    const mockExecutionContext = {
+      getHandler: jest.fn().mockReturnValue(() => {}),
+    } as unknown as ExecutionContext;
+
+    expect(() => rolesGuard.canActivate(mockExecutionContext)).toThrow(
+      new UnauthorizedException('User not authenticated or role missing'),
+    );
+
+    expect(reflector.get).toHaveBeenCalledWith('roles', expect.any(Function));
+    expect(HandleContext).toHaveBeenCalledWith(mockExecutionContext);
   });
 });

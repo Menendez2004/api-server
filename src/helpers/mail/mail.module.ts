@@ -11,8 +11,8 @@ import { ConfigurationService } from 'src/helpers/configuration/configuration.se
       useFactory: async (configService: ConfigurationService) => ({
         transport: {
           host: configService.emailHost,
-          port: parseInt(configService.emailPort),
-          secure: false,
+          port: parseInt(configService.emailPort, 10),
+          secure: configService.emailPort === '465',
           auth: {
             user: configService.emailUser,
             pass: configService.emailPass,

@@ -1,5 +1,5 @@
 export interface UserGraphInterface {
-    user: { 
-        id: string;
-    }
+  user: {
+    id: string;
+  };
 }

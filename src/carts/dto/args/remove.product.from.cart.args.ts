@@ -13,6 +13,6 @@ export class RemoveProductFromCartArgs {
   @Field(() => String!)
   @Expose()
   @IsString()
-  @IsUUID('4', )
+  @IsUUID('4')
   cartId: string;
 }
