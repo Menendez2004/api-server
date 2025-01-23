@@ -25,14 +25,15 @@ import { CartItemType } from './types/cart.item.types';
 export class CartsResolver {
   constructor(private readonly cartsService: CartsService) {}
 
+
   @AuthRole('CLIENT')
   @Mutation(() => UpdateProductCartRes)
-  async addOrUpdateCartProduct(
+  async upsertCartProduct(
     @Args('data') data: UpsertCartItemInput,
     @Context('request') req: any,
   ): Promise<UpdateProductCartRes> {
     const userId = req.user.id;
-    return this.cartsService.addProductToUserCart(userId, data);
+    return this.cartsService.upsertCartProduct(userId, data);
   }
 
   @AuthRole('CLIENT')

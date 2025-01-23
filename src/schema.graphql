@@ -268,7 +268,7 @@ input GetOrderArg {
 type Mutation {
   createCategory(data: CreateCategoryReq!): CreateCategoryRes!
   removeCategory(id: RemoveCategoryReq!): RemoveCategoryRes!
-  addOrUpdateCartProduct(data: UpsertCartItemInput!): UpdateProductCartRes!
+  upsertCartProduct(data: UpsertCartItemInput!): UpdateProductCartRes!
   removeProductFromCart(data: RemoveProductFromCartArgs!): RemoveProductCartRes!
   createProduct(data: CreateProductInput!): CreateProductsRes!
   updateProduct(id: String!, data: UpdateProductArg!): UpdateProductRes!

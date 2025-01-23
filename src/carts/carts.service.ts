@@ -25,7 +25,7 @@ export class CartsService {
     private readonly validatorService: ValidatorService,
   ) {}
 
-  async addProductToUserCart(
+  async upsertCartProduct(
     userId: string,
     data: UpsertCartItemInput,
   ): Promise<UpdateProductCartRes> {
@@ -71,25 +71,37 @@ export class CartsService {
   }
 
   async fetchOrCreateCart(userId: string, cartId?: string): Promise<Carts> {
-    if (!cartId) {
-      const existingCart = await this.prismaService.carts.findUnique({
-        where: { userId: userId },
+    if (cartId) {
+      const cart = await this.findCartById(cartId);
+      this.validateCartOwnership(cart, userId);
+      return cart;
+    }
+  
+    const existingCart = await this.prismaService.carts.findUnique({
+      where: { userId },
+      include: this.getCartIncludeRelations(),
+    });
+  
+    if (existingCart) {
+      await this.prismaService.carts.update({
+        where: { id: existingCart.id },
+        data: { updatedAt: new Date() },
       });
-
-      if (existingCart) {
-        return existingCart;
-      }
-
-      return this.prismaService.carts.create({
+      return existingCart;
+    }
+  
+    try {
+      return await this.prismaService.carts.create({
         data: {
           user: { connect: { id: userId } },
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
+        include: this.getCartIncludeRelations(),
       });
+    } catch (error) {
+      throw new NotAcceptableException('Unable to create cart for user');
     }
-
-    const cart = await this.findCartById(cartId);
-    this.validateCartOwnership(cart, userId);
-    return cart;
   }
 
   async upsertCartItem(
