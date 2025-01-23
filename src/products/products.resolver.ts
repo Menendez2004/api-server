@@ -50,7 +50,6 @@ export class ProductsResolver {
     return res;
   }
 
-  
   @Query(() => ProductsPagination)
   async findAllProducts(
     @Args('filters', { nullable: true }) filters?: ProductFiltersInput,

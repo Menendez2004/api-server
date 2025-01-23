@@ -47,7 +47,7 @@ async function bootstrap() {
       type: 'application/json',
     }),
   );
-  app.setBaseViewsDir(join(process.cwd(), 'src/helpers/template'));
+  app.setBaseViewsDir(join(process.cwd(), './helpers/template'));
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(
     new ValidationPipe({

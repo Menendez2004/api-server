@@ -25,7 +25,6 @@ import { CartItemType } from './types/cart.item.types';
 export class CartsResolver {
   constructor(private readonly cartsService: CartsService) {}
 
-
   @AuthRole('CLIENT')
   @Mutation(() => UpdateProductCartRes)
   async upsertCartProduct(

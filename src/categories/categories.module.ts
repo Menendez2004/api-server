@@ -6,10 +6,7 @@ import { ValidatorModule } from '../helpers/service/validator.module';
 import { ConfigurationModule } from 'src/helpers/configuration/configuration.module';
 
 @Module({
-  imports: [PrismaModule,
-    ValidatorModule,
-    ConfigurationModule,
-  ],
+  imports: [PrismaModule, ValidatorModule, ConfigurationModule],
   providers: [CategoriesService, CategoriesResolver],
   exports: [CategoriesService],
 })

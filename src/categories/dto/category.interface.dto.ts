@@ -10,5 +10,4 @@ export class CategoryType {
 
   @Field()
   createdAt: Date;
-
 }

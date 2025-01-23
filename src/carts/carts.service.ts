@@ -76,12 +76,12 @@ export class CartsService {
       this.validateCartOwnership(cart, userId);
       return cart;
     }
-  
+
     const existingCart = await this.prismaService.carts.findUnique({
       where: { userId },
       include: this.getCartIncludeRelations(),
     });
-  
+
     if (existingCart) {
       await this.prismaService.carts.update({
         where: { id: existingCart.id },
@@ -89,7 +89,7 @@ export class CartsService {
       });
       return existingCart;
     }
-  
+
     try {
       return await this.prismaService.carts.create({
         data: {

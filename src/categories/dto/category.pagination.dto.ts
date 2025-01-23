@@ -5,8 +5,8 @@ import { CategoryType } from './category.interface.dto';
 
 @ObjectType()
 export class CategoryPagination {
-    @Field(() => [CategoryType])
-    collection: CategoryType[];
-    @Field()
-    meta: PaginationMeta;
+  @Field(() => [CategoryType])
+  collection: CategoryType[];
+  @Field()
+  meta: PaginationMeta;
 }

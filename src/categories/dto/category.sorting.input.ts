@@ -4,24 +4,24 @@ import { IsEnum, IsOptional } from 'class-validator';
 import { SortOrder } from '../../helpers/enums/sort.order.enum';
 
 export enum CategorySortableField {
-    NAME = 'name',
-    CREATED_AT = 'createdAt',
-    UPDATED_AT = 'updatedAt',
+  NAME = 'name',
+  CREATED_AT = 'createdAt',
+  UPDATED_AT = 'updatedAt',
 }
 
 registerEnumType(CategorySortableField, { name: 'CategorySortableField' });
 
 @InputType()
 export class SortinCategoryInput {
-    @Field(() => CategorySortableField, {
-        defaultValue: CategorySortableField.NAME,
-    })
-    @IsOptional()
-    @IsEnum(CategorySortableField)
-    field: CategorySortableField;
+  @Field(() => CategorySortableField, {
+    defaultValue: CategorySortableField.NAME,
+  })
+  @IsOptional()
+  @IsEnum(CategorySortableField)
+  field: CategorySortableField;
 
-    @Field(() => SortOrder, { defaultValue: SortOrder.ASC })
-    @IsOptional()
-    @IsEnum(SortOrder)
-    order: SortOrder;
+  @Field(() => SortOrder, { defaultValue: SortOrder.ASC })
+  @IsOptional()
+  @IsEnum(SortOrder)
+  order: SortOrder;
 }

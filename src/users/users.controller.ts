@@ -67,15 +67,17 @@ export class UsersController {
       user: { connect: { id: user.id } },
       tokenType: { connect: { id: 1 } },
     };
-    const sendEncodToken = await this.tokenService.encodeToken(token);
-    await this.tokenService.createToken(infoToken);
-    this.mailService.sendMail({
-      email: user.email,
-      subject: 'forget password',
-      uri: `${this.configurationService.baseUrl}/auth/reset/${sendEncodToken}`,
-      template: './reset.pass',
-      userName: user.userName,
-    });
+    const encodeToken = await this.tokenService.encodeToken(token);
+    await Promise.all([
+      this.tokenService.createToken(infoToken),
+      this.mailService.sendMail({
+        email: user.email,
+        subject: 'forget password',
+        uri: `${this.configurationService.baseUrl}/auth/reset-password/${encodeToken}`,
+        template: './reset.pass',
+        userName: `${user.userName},`,
+      })
+    ])
     return `your token was sent to your email`;
   }
   @Throttle({ default: { ttl: seconds(60), limit: 3 } })

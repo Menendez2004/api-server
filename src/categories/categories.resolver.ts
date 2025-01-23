@@ -33,16 +33,19 @@ export class CategoriesResolver {
     this.logger.log(`Category created: ${category.id}`);
     return category;
   }
-  
-    @Query(()=> CategoryPagination )
-    async findAllCategories(
-      @Args( 'filters', {nullable: true}) filters?: CategoryPaginationFilter,
-      @Args('sortBy', {nullable: true}) sortBy?: SortinCategoryInput,
-      @Args('pagination', {nullable: true}) pagination?: PaginationInput,
-    ): Promise<CategoryPagination>{
-      return await this.categoriesService.findAllCategories( filters, sortBy, pagination);
-      
-    }
+
+  @Query(() => CategoryPagination)
+  async findAllCategories(
+    @Args('filters', { nullable: true }) filters?: CategoryPaginationFilter,
+    @Args('sortBy', { nullable: true }) sortBy?: SortinCategoryInput,
+    @Args('pagination', { nullable: true }) pagination?: PaginationInput,
+  ): Promise<CategoryPagination> {
+    return await this.categoriesService.findAllCategories(
+      filters,
+      sortBy,
+      pagination,
+    );
+  }
 
   @AuthRole('MANAGER')
   @Mutation(() => RemoveCategoryRes)
