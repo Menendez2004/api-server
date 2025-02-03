@@ -23,7 +23,7 @@ import { Response } from 'express';
 import { MailService } from 'src/helpers/mail/mail.service';
 import { TokenService } from 'src/token/token.service';
 import { ConfigurationService } from 'src/helpers/configuration/configuration.service';
-import { seconds, Throttle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('users')
 export class UsersController {
@@ -51,7 +51,7 @@ export class UsersController {
     };
   }
 
-  @Throttle({ default: { ttl: seconds(60), limit: 3 } })
+  @Throttle({ default: { ttl: 60, limit: 3 } })
   @Put('forget')
   @HttpCode(HttpStatus.ACCEPTED)
   async forgetPass(@Body() req: ForgetPassReqDto): Promise<string> {
@@ -72,22 +72,31 @@ export class UsersController {
       this.tokenService.createToken(infoToken),
       this.mailService.sendMail({
         email: user.email,
-        subject: 'forget password',
-        uri: `${this.configurationService.baseUrl}/auth/reset-password/${encodeToken}`,
-        template: './reset.pass',
-        userName: `${user.userName},`,
-      })
-    ])
+        subject: 'Password Reset Request',
+        uri: `http://localhost:8000/users/reset-password/${encodeToken}`,
+        template: 'reset-pass',
+        userName: `${user.userName}`,
+      }),
+    ]);
+    console.log('Encoded Token:', encodeToken);
+    console.log(
+      'Full Reset URL:',
+      `${this.configurationService.baseUrl}/users/reset-password/${encodeToken}`,
+    );
     return `your token was sent to your email`;
   }
-  @Throttle({ default: { ttl: seconds(60), limit: 3 } })
+
+  @Throttle({ default: { ttl: 60, limit: 3 } })
   @Get('reset-password/:token')
-  @Render('reset.view')
-  frontEndResetPass(@Param('token') token: string, @Res() res: Response) {
+  @Render('reset-view')
+  resetPassView(@Param('token') token: string, @Res() res: Response) {
+    const nonce = res.locals.nonce;
     res.cookie('token', token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 4 });
+    return { nonce };
   }
-  @Throttle({ default: { ttl: seconds(60), limit: 3 } })
-  @Put('reset')
+
+  @Throttle({ default: { ttl: 60, limit: 3 } })
+  @Put('reset-pass')
   @HttpCode(HttpStatus.NO_CONTENT)
   async resetPass(@Body() req: ResetPassReqDto) {
     const [decodedToken, passwordHashed] = await Promise.all([
@@ -106,6 +115,7 @@ export class UsersController {
       subject: 'reset password',
       message: 'password has been reset',
       userName: user.userName,
+      template: 'reset-pass-confirmation',
     });
     if (!resetPass) {
       throw new BadRequestException(

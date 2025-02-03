@@ -13,7 +13,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'http://localhost:3000',
+      'http://localhost:8000',
       'https://sandbox.embed.apollographql.com',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
@@ -42,12 +42,11 @@ async function bootstrap() {
   );
 
   app.use(
-    '/payment/webhook',
-    bodyParser.raw({
-      type: 'application/json',
-    }),
+    '/api/v1/payment/webhook',
+    bodyParser.raw({ type: 'application/json' }),
   );
-  app.setBaseViewsDir(join(process.cwd(), './helpers/template'));
+  app.setBaseViewsDir(join(process.cwd(), 'public/template'));
+  app.setViewEngine('hbs');
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(
     new ValidationPipe({
