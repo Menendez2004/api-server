@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Expose } from 'class-transformer';
-import { RecordUpdate } from '../../../helpers/interfaces/index.interface';
+import { RecordUpdate } from '../../../common/interfaces/index.interface';
 
 @ObjectType({
   implements: () => [RecordUpdate],

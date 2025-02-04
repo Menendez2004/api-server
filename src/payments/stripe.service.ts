@@ -1,10 +1,10 @@
 import { Injectable, NotAcceptableException, Logger } from '@nestjs/common';
 import Stripe from 'stripe';
-import { PrismaService } from '../helpers/prisma/prisma.service';
+import { PrismaService } from '../common/prisma/prisma.service';
 import { OrdersService } from '../orders/orders.service';
 import { AddPaymentRes } from './dto/index.dto';
 import { RoleName } from '@prisma/client';
-import { ConfigurationService } from '../helpers/configuration/configuration.service';
+import { ConfigurationService } from '../common/configuration/configuration.service';
 
 @Injectable()
 export class StripeService {

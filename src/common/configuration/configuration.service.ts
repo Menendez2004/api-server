@@ -53,7 +53,7 @@ export class ConfigurationService {
   }
 
   get emailPass(): string {
-    return this.config.get<string>('EMAIL_PASS');
+    return this.config.get<string>('EMAIL_PASSWORD');
   }
 
   get emailFrom(): string {

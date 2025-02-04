@@ -3,7 +3,7 @@ import {
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../helpers/prisma/prisma.service';
+import { PrismaService } from '../common/prisma/prisma.service';
 import { NewOrderRecordRes } from './dto/res/index.res';
 import { CartsService } from '../carts/carts.service';
 import { UsersService } from '../users/users.service';

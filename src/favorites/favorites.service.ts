@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../helpers/prisma/prisma.service';
+import { PrismaService } from '../common/prisma/prisma.service';
 import { plainToInstance } from 'class-transformer';
 import { Favorites } from '@prisma/client';
 import { FavoriteType } from './types/favorite.product.types';

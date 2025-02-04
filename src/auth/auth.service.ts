@@ -23,6 +23,7 @@ export class AuthService {
       role: userRole.name,
     };
     return {
+      tokenType: 'Bearer',
       accessToken: this.jwtService.sign(payload),
     };
   }

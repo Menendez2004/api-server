@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { MailService } from './mail.service';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { ConfigurationModule } from 'src/helpers/configuration/configuration.module';
-import { ConfigurationService } from 'src/helpers/configuration/configuration.service';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { ConfigurationModule } from '../../common/configuration/configuration.module';
+import { ConfigurationService } from '../../common/configuration/configuration.service';
 
 @Module({
   imports: [
@@ -20,6 +21,13 @@ import { ConfigurationService } from 'src/helpers/configuration/configuration.se
         },
         defaults: {
           from: configService.emailFrom,
+        },
+        template: {
+          dir: process.cwd() + '/public/template/mails',
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: true,
+          },
         },
       }),
       inject: [ConfigurationService],

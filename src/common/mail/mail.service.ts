@@ -13,8 +13,8 @@ export class MailService {
       template: emailTemplate.template,
       context: {
         message: emailTemplate.message,
-        uri: emailTemplate.uri,
-        name: emailTemplate.userName,
+        url: emailTemplate.uri,
+        userName: emailTemplate.userName,
       },
     });
   }

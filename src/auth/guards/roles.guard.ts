@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { HandleContext } from '../../helpers/filters/context.helper.filter';
+import { HandleContext } from '../../common/filters/context.helper.filter';
 
 @Injectable()
 export class RolesGuard implements CanActivate {

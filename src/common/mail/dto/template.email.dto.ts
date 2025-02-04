@@ -11,7 +11,7 @@ export class EmailTemplateDto {
 
   @IsString()
   @IsNotEmpty()
-  template?: string;
+  template: string;
 
   @IsString()
   @IsOptional()

@@ -4,17 +4,66 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Categories } from '@prisma/client';
-import { PrismaService } from '../helpers/prisma/prisma.service';
+import { PrismaService } from '../common/prisma/prisma.service';
 import {
   CreateCategoryRes,
   RemoveCategoryRes,
 } from './dto/res/index.category.res';
 import { plainToInstance } from 'class-transformer';
-import { categories } from './classes/categories.class';
+import { Prisma } from '@prisma/client';
+import { SortinCategoryInput } from './dto/category.sorting.input';
+import { PaginationInput } from '../common/pagination/index.pagination';
+import { CategoryPaginationFilter } from './filters/category.pagination.filter';
+import { CategoryPagination } from './dto/category.pagination.dto';
 
 @Injectable()
 export class CategoriesService {
   constructor(private prisma: PrismaService) {}
+
+  async findAllCategories(
+    filters?: CategoryPaginationFilter,
+    sortBy?: SortinCategoryInput,
+    pagination?: PaginationInput,
+  ): Promise<CategoryPagination> {
+    const page = pagination?.page ?? 1;
+    const limit = pagination?.limit ?? 20;
+
+    const where = {
+      ...(filters?.categoryId && {
+        categoryId: { equals: filters.categoryId },
+      }),
+      ...(filters?.name && {
+        name: { contains: filters.name, mode: Prisma.QueryMode.insensitive },
+      }),
+    };
+
+    const orderBy = sortBy
+      ? [{ [sortBy.field]: sortBy.order as 'asc' | 'desc' }]
+      : [{ name: 'desc' as 'asc' | 'desc' }];
+
+    const [items, totalItems] = await Promise.all([
+      this.prisma.categories.findMany({
+        where,
+        orderBy,
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.categories.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(totalItems / limit);
+    const meta = {
+      totalItems,
+      totalPages,
+      limit,
+      page,
+    };
+
+    return {
+      collection: items,
+      meta,
+    };
+  }
 
   async createCategory(name: string): Promise<CreateCategoryRes> {
     const foundCategory = await this.findCategoryByName(name);
@@ -25,7 +74,7 @@ export class CategoriesService {
     }
 
     const cretatedCategory = await this.prisma.categories.create({
-      data: { name }, //should add descriptions for this???? review later
+      data: { name },
     });
     return plainToInstance(CreateCategoryRes, cretatedCategory);
   }

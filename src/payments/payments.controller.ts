@@ -9,7 +9,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { StripeService } from './stripe.service';
-import { GlobalExceptionFilter } from '../helpers/filters/global.exception.filter';
+import { GlobalExceptionFilter } from '../common/filters/global.exception.filter';
 import { AuthRole } from 'src/auth/decorators/auth.roles.decorator';
 import { AddPaymentReq } from './dto/index.dto';
 

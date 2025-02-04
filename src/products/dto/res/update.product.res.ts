@@ -1,12 +1,10 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { RecordUpdate } from '../../../helpers/interfaces/index.interface';
-import { Expose } from 'class-transformer';
+import { RecordUpdate } from '../../../common/interfaces/index.interface';
 
 @ObjectType({
   implements: () => RecordUpdate,
 })
 export class UpdateProductRes implements RecordUpdate {
-  @Field(() => Date!, { name: 'updated_at' })
-  @Expose({ name: 'updated_at' })
+  @Field(() => Date!)
   updatedAt: Date;
 }

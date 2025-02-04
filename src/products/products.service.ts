@@ -5,21 +5,21 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { PaginationInput } from '../helpers/pagination/pagination.input';
-import { PrismaService } from '../helpers/prisma/prisma.service';
+import { PaginationInput } from '../common/pagination/pagination.input';
+import { PrismaService } from '../common/prisma/prisma.service';
 import { UpdateProductRes, CreateProductsRes } from './dto/res/index.res';
-import { ValidatorService } from '../helpers/service/validator.service';
+import { ValidatorService } from '../common/service/validator.service';
 import { ProductFiltersInput } from './dto/filters/product.input.filter';
 import { SortingProductInput } from './dto/products.sorting.input';
 import { UpdateProductArg } from './dto/args/update.product.args';
 import { CreateProductInput } from './dto/products.create.input';
-import { CloudinaryService } from '../helpers/cloudinary/cloudinary.service';
+import { CloudinaryService } from '../common/cloudinary/cloudinary.service';
 import { Prisma, ProductImages } from '@prisma/client';
 import { ImagesTypes } from './types/images.type';
 import { plainToInstance } from 'class-transformer';
 import { UpdateProductInput } from './dto/products.update.input';
 import { ProductsPagination } from './dto/products.pagination';
-import { OperationType } from '../helpers/enums/operation.type.enum';
+import { OperationType } from '../common/enums/operation.type.enum';
 import { UpdateProductImagesArgs } from './dto/args/update.product.image.args';
 import { UploadApiErrorResponse } from 'cloudinary';
 

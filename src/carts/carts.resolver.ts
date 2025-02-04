@@ -10,7 +10,7 @@ import {
 import { CartsService } from './carts.service';
 import { AuthRole } from 'src/auth/decorators/auth.roles.decorator';
 import { UseFilters } from '@nestjs/common';
-import { GlobalExceptionFilter } from '../helpers/filters/global.exception.filter';
+import { GlobalExceptionFilter } from '../common/filters/global.exception.filter';
 import { UpsertCartItemInput } from './dto/args/index.args';
 import {
   RemoveProductCartRes,
@@ -27,12 +27,12 @@ export class CartsResolver {
 
   @AuthRole('CLIENT')
   @Mutation(() => UpdateProductCartRes)
-  async addOrUpdateCartProduct(
+  async upsertCartProduct(
     @Args('data') data: UpsertCartItemInput,
     @Context('request') req: any,
   ): Promise<UpdateProductCartRes> {
     const userId = req.user.id;
-    return this.cartsService.addProductToUserCart(userId, data);
+    return this.cartsService.upsertCartProduct(userId, data);
   }
 
   @AuthRole('CLIENT')

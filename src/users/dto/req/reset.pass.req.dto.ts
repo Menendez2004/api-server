@@ -9,7 +9,7 @@ export class ResetPassReqDto {
   @IsDefined()
   @IsNotEmpty()
   @IsStrongPassword()
-  password: string;
+  new_password: string;
 
   @IsString()
   @IsNotEmpty()

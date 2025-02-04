@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import * as bodyParser from 'body-parser';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
-import { GlobalExceptionFilter } from 'src/helpers/filters/global.exception.filter';
+import { GlobalExceptionFilter } from './common/filters/global.exception.filter';
 import { join } from 'path';
 import helmet from 'helmet';
 
@@ -13,7 +13,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'http://localhost:3000',
+      'http://localhost:8000',
       'https://sandbox.embed.apollographql.com',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
@@ -42,13 +42,13 @@ async function bootstrap() {
   );
 
   app.use(
-    '/payment/webhook',
-    bodyParser.raw({
-      type: 'application/json',
-    }),
+    '/api/v1/payment/webhook',
+    bodyParser.raw({ type: 'application/json' }),
   );
-  app.setBaseViewsDir(join(process.cwd(), 'src/helpers/template'));
+  app.setBaseViewsDir(join(process.cwd(), 'public/template'));
+  app.setViewEngine('hbs');
   app.setGlobalPrefix('api/v1');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

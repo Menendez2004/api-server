@@ -11,12 +11,12 @@ import {
   RemoveProductFromCartArgs,
   UpsertCartItemInput,
 } from './dto/args/index.args';
-import { PrismaService } from '../helpers/prisma/prisma.service';
+import { PrismaService } from '../common/prisma/prisma.service';
 import {
   RemoveProductCartRes,
   UpdateProductCartRes,
 } from './dto/res/index.res';
-import { ValidatorService } from '../helpers/service/validator.service';
+import { ValidatorService } from '../common/service/validator.service';
 
 @Injectable()
 export class CartsService {
@@ -25,7 +25,7 @@ export class CartsService {
     private readonly validatorService: ValidatorService,
   ) {}
 
-  async addProductToUserCart(
+  async upsertCartProduct(
     userId: string,
     data: UpsertCartItemInput,
   ): Promise<UpdateProductCartRes> {
@@ -71,25 +71,37 @@ export class CartsService {
   }
 
   async fetchOrCreateCart(userId: string, cartId?: string): Promise<Carts> {
-    if (!cartId) {
-      const existingCart = await this.prismaService.carts.findUnique({
-        where: { userId: userId },
-      });
-
-      if (existingCart) {
-        return existingCart;
-      }
-
-      return this.prismaService.carts.create({
-        data: {
-          user: { connect: { id: userId } },
-        },
-      });
+    if (cartId) {
+      const cart = await this.findCartById(cartId);
+      this.validateCartOwnership(cart, userId);
+      return cart;
     }
 
-    const cart = await this.findCartById(cartId);
-    this.validateCartOwnership(cart, userId);
-    return cart;
+    const existingCart = await this.prismaService.carts.findUnique({
+      where: { userId },
+      include: this.getCartIncludeRelations(),
+    });
+
+    if (existingCart) {
+      await this.prismaService.carts.update({
+        where: { id: existingCart.id },
+        data: { updatedAt: new Date() },
+      });
+      return existingCart;
+    }
+
+    try {
+      return await this.prismaService.carts.create({
+        data: {
+          user: { connect: { id: userId } },
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        include: this.getCartIncludeRelations(),
+      });
+    } catch (error) {
+      throw new NotAcceptableException('Unable to create cart for user', error);
+    }
   }
 
   async upsertCartItem(

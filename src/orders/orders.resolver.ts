@@ -1,6 +1,6 @@
 import { Args, Mutation, Context, Query, Resolver } from '@nestjs/graphql';
 import { UseFilters } from '@nestjs/common';
-import { GlobalExceptionFilter } from '../helpers/filters/global.exception.filter';
+import { GlobalExceptionFilter } from '../common/filters/global.exception.filter';
 import { OrderDetailType, OrderType } from './types/index.types';
 import { GetOrderArg, NewOrderArg } from './dto/args/index.args';
 import { NewOrderRecordRes } from './dto/res/index.res';

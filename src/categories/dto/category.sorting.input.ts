@@ -3,24 +3,22 @@ import { registerEnumType } from '@nestjs/graphql';
 import { IsEnum, IsOptional } from 'class-validator';
 import { SortOrder } from '../../common/enums/sort.order.enum';
 
-export enum ProductSortableField {
+export enum CategorySortableField {
   NAME = 'name',
   CREATED_AT = 'createdAt',
   UPDATED_AT = 'updatedAt',
-  LIKES_COUNT = 'likesCount',
-  PRICE = 'price',
 }
 
-registerEnumType(ProductSortableField, { name: 'ProductSortableField' });
+registerEnumType(CategorySortableField, { name: 'CategorySortableField' });
 
 @InputType()
-export class SortingProductInput {
-  @Field(() => ProductSortableField, {
-    defaultValue: ProductSortableField.NAME,
+export class SortinCategoryInput {
+  @Field(() => CategorySortableField, {
+    defaultValue: CategorySortableField.NAME,
   })
   @IsOptional()
-  @IsEnum(ProductSortableField)
-  field: ProductSortableField;
+  @IsEnum(CategorySortableField)
+  field: CategorySortableField;
 
   @Field(() => SortOrder, { defaultValue: SortOrder.ASC })
   @IsOptional()

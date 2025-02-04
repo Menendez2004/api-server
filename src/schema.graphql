@@ -2,17 +2,45 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type categories {
-  id: ID!
+type CreateCategoryRes {
+  id: Int!
   name: String!
   createdAt: DateTime!
-  updatedAt: DateTime!
 }
 
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+type RemoveCategoryRes {
+  id: Int!
+}
+
+type PaginationMeta {
+  totalItems: Int!
+  totalPages: Int!
+  limit: Int!
+  page: Int!
+}
+
+type CategoryType {
+  id: Float!
+  name: String!
+  createdAt: DateTime!
+}
+
+type CategoryPagination {
+  collection: [CategoryType!]!
+  meta: PaginationMeta!
+}
+
+type categories {
+  id: ID!
+  name: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
 
 type ImagesTypes {
   id: ID!
@@ -79,14 +107,6 @@ type DeletedProductsRes {
 
 type UpdateProductRes implements RecordUpdate {
   updatedAt: DateTime!
-  updated_at: DateTime!
-}
-
-type PaginationMeta {
-  totalItems: Int!
-  totalPages: Int!
-  limit: Int!
-  page: Int!
 }
 
 type ProductType {
@@ -186,12 +206,39 @@ type OrderDetailType {
 }
 
 type Query {
+  findAllCategories(filters: CategoryPaginationFilter, sortBy: SortinCategoryInput, pagination: PaginationInput): CategoryPagination!
   getCarts: CartType!
   findAllProducts(filters: ProductFiltersInput, sortBy: SortingProductInput, pagination: PaginationInput): ProductsPagination!
   getProductImages(productId: String!): [ImagesTypes!]!
   getProductPrice(productId: String!): Float!
   getFavorites: [FavoriteType!]!
   getOrderById(orderData: GetOrderArg!): OrderType!
+}
+
+input CategoryPaginationFilter {
+  categoryId: Float
+  name: String
+}
+
+input SortinCategoryInput {
+  field: CategorySortableField! = NAME
+  order: SortOrder! = ASC
+}
+
+enum CategorySortableField {
+  NAME
+  CREATED_AT
+  UPDATED_AT
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+input PaginationInput {
+  page: Int = 1
+  limit: Int = 20
 }
 
 input ProductFiltersInput {
@@ -214,22 +261,14 @@ enum ProductSortableField {
   PRICE
 }
 
-enum SortOrder {
-  ASC
-  DESC
-}
-
-input PaginationInput {
-  page: Int = 1
-  limit: Int = 20
-}
-
 input GetOrderArg {
   orderId: ID!
 }
 
 type Mutation {
-  addOrUpdateCartProduct(data: UpsertCartItemInput!): UpdateProductCartRes!
+  createCategory(data: CreateCategoryReq!): CreateCategoryRes!
+  removeCategory(id: RemoveCategoryReq!): RemoveCategoryRes!
+  upsertCartProduct(data: UpsertCartItemInput!): UpdateProductCartRes!
   removeProductFromCart(data: RemoveProductFromCartArgs!): RemoveProductCartRes!
   createProduct(data: CreateProductInput!): CreateProductsRes!
   updateProduct(id: String!, data: UpdateProductArg!): UpdateProductRes!
@@ -238,6 +277,14 @@ type Mutation {
   """Toggle the favorite status of a product for the authenticated user"""
   upsertFavorite(input: UpserFavoriteArgs!): FavoriteResponse!
   createOrder(newOrderData: NewOrderArg!): NewOrderRecordRes!
+}
+
+input CreateCategoryReq {
+  name: String!
+}
+
+input RemoveCategoryReq {
+  id: Int!
 }
 
 input UpsertCartItemInput {

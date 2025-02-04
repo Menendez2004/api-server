@@ -6,7 +6,7 @@ import {
   IsString,
 } from 'class-validator';
 import { Expose } from 'class-transformer';
-import { OperationType } from 'src/helpers/enums/operation.type.enum';
+import { OperationType } from '../../../common/enums/operation.type.enum';
 
 export class UpdateProductImagesArgs {
   @IsEnum(OperationType)

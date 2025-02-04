@@ -8,83 +8,106 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
             margin: 0;
-            padding: 20px;
-            background-color: #f4f4f9;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
         }
 
         h1 {
-            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            color: #444;
+            text-align: center;
+        }
+
+        p {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            color: #666;
         }
 
         form {
-            max-width: 400px;
-            margin: auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        div {
-            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
         label {
-            display: block;
+            font-size: 0.9rem;
+            color: #555;
             margin-bottom: 5px;
         }
 
         input {
             width: 100%;
             padding: 10px;
+            font-size: 1rem;
             border: 1px solid #ccc;
             border-radius: 4px;
         }
 
         button {
-            width: 100%;
+            background-color: #007bff;
+            color: white;
+            font-size: 1rem;
             padding: 10px;
-            background-color: #28a745;
-            color: #fff;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
         button:hover {
-            background-color: #218838;
+            background-color: #0056b3;
         }
 
         #message {
+            margin-top: 10px;
+            font-size: 0.9rem;
             text-align: center;
-            font-size: 1rem;
         }
     </style>
 </head>
 
 <body>
+    <div class="container">
+        <h1>Reset Your Password</h1>
+        <p>Please enter your new password below.</p>
 
-    <h1>Reset Your Password</h1>
-    <p>Please enter your new password</p>
+        <form id="resetPasswordForm">
+            <div>
+                <label for="password">New Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your new password" required>
+            </div>
+            <div>
+                <button type="submit">Reset Password</button>
+            </div>
+        </form>
 
-    <form id="resetPasswordForm">
-        <div>
-            <label for="password">New Password:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <div>
-            <button type="submit">Reset Password</button>
-        </div>
-    </form>
+        <div id="message"></div>
+    </div>
 
-    <div id="message" aria-live="polite" style="margin-top: 20px;"></div>
-
-    <script>
+    <script nonce="{{nonce}}">
         function getCookie(name) {
             const cookies = document.cookie.split(';');
-            for (let cookie of cookies) {
-                cookie = cookie.trim();
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
                 if (cookie.startsWith(name + '=')) {
                     return cookie.substring(name.length + 1);
                 }
@@ -104,13 +127,8 @@
                 return;
             }
 
-            if (newPassword.length < 8) {
-                messageDiv.innerHTML = '<p style="color: red;">Error: Password must be at least 8 characters long.</p>';
-                return;
-            }
-
             try {
-                const response = await fetch('/api/v1/users/reset-password', {
+                const response = await fetch('/api/v1/users/reset-pass', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -126,11 +144,10 @@
                 }
             } catch (error) {
                 messageDiv.innerHTML = `<p style="color: red;">Something went wrong, try again later.</p>`;
-                console.error('Error:', error);
+                console.log(error.message);
             }
         });
     </script>
-
 </body>
 
 </html>

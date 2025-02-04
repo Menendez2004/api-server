@@ -6,7 +6,7 @@ export default async (prisma: PrismaClient): Promise<Users> => {
     if (!email) {
         throw new Error('MANAGER_EMAIL environment variable is not set');
     }
-    const password = await bcrypt.hash(process.env.MANAGER_PASSWORD || '', 10); // 10 rounds of salt
+    const password = await bcrypt.hash(process.env.MANAGER_PASSWORD || '', 10);
 
     return prisma.users.upsert({
         where: { email },
@@ -20,5 +20,8 @@ export default async (prisma: PrismaClient): Promise<Users> => {
             password,
         },
         update: {},
+
+        
+        
     });
 };
