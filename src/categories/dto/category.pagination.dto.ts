@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { PaginationMeta } from '../../helpers/pagination/pagination.meta';
+import { PaginationMeta } from '../../common/pagination/pagination.meta';
 
 import { CategoryType } from './category.interface.dto';
 

@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { HandleContext } from '../../helpers/filters/context.helper.filter';
+import { HandleContext } from '../../common/filters/context.helper.filter';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {

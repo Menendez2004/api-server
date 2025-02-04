@@ -9,12 +9,12 @@ import {
   RemoveCategoryRes,
 } from './dto/res/index.category.res';
 import { AuthRole } from '../auth/decorators/auth.roles.decorator';
-import { GlobalExceptionFilter } from '../helpers/filters/global.exception.filter';
+import { GlobalExceptionFilter } from '../common/filters/global.exception.filter';
 import { CategoriesService } from './categories.service';
 import { CategoryPagination } from './dto/category.pagination.dto';
 import { CategoryPaginationFilter } from './filters/category.pagination.filter';
 import { SortinCategoryInput } from './dto/category.sorting.input';
-import { PaginationInput } from '../helpers/pagination/index.pagination';
+import { PaginationInput } from '../common/pagination/index.pagination';
 
 @Resolver()
 @UseFilters(new GlobalExceptionFilter())

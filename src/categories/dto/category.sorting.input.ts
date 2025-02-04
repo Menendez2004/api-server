@@ -1,7 +1,7 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { registerEnumType } from '@nestjs/graphql';
 import { IsEnum, IsOptional } from 'class-validator';
-import { SortOrder } from '../../helpers/enums/sort.order.enum';
+import { SortOrder } from '../../common/enums/sort.order.enum';
 
 export enum CategorySortableField {
   NAME = 'name',

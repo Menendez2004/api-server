@@ -4,25 +4,26 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { UsersController } from './users/users.controller';
-import { PrismaModule } from './helpers/prisma/prisma.module';
+import { PrismaModule } from './common/prisma/prisma.module';
 import { AuthController } from './auth/auth.controller';
-import { PrismaService } from 'src/helpers/prisma/prisma.service';
-import { GlobalExceptionFilter } from 'src/helpers/filters/global.exception.filter';
+import { PrismaService } from './common/prisma/prisma.service';
+import { GlobalExceptionFilter } from './common/filters/global.exception.filter';
 import { CategoriesModule } from './categories/categories.module';
 import { CartsModule } from './carts/carts.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { PaymentsModule } from './payments/payments.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
-import { ValidatorModule } from './helpers/service/validator.module';
+import { ValidatorModule } from './common/service/validator.module';
 import { GraphqlModule } from './graphql.module';
 import { TokenModule } from './token/token.module';
 import { seconds, ThrottlerModule } from '@nestjs/throttler';
-import { MailModule } from './helpers/mail/mail.module';
-import { ConfigurationModule } from './helpers/configuration/configuration.module';
-import { ValidatorService } from './helpers/service/validator.service';
+import { MailModule } from './common/mail/mail.module';
+import { ConfigurationModule } from './common/configuration/configuration.module';
+import { ValidatorService } from './common/service/validator.service';
 
 @Module({
+  controllers: [UsersController, AuthController],
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
@@ -49,7 +50,6 @@ import { ValidatorService } from './helpers/service/validator.service';
       },
     ]),
   ],
-  controllers: [UsersController, AuthController],
   providers: [
     PrismaService,
     ValidatorService,

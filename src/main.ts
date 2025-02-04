@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import * as bodyParser from 'body-parser';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
-import { GlobalExceptionFilter } from 'src/helpers/filters/global.exception.filter';
+import { GlobalExceptionFilter } from './common/filters/global.exception.filter';
 import { join } from 'path';
 import helmet from 'helmet';
 
@@ -48,6 +48,7 @@ async function bootstrap() {
   app.setBaseViewsDir(join(process.cwd(), 'public/template'));
   app.setViewEngine('hbs');
   app.setGlobalPrefix('api/v1');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

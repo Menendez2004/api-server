@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { RecordDeletion } from '../../../helpers/interfaces/index.interface';
+import { RecordDeletion } from '../../../common/interfaces/index.interface';
 
 @ObjectType({
   implements: () => [RecordDeletion],

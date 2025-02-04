@@ -11,12 +11,12 @@ import {
   RemoveProductFromCartArgs,
   UpsertCartItemInput,
 } from './dto/args/index.args';
-import { PrismaService } from '../helpers/prisma/prisma.service';
+import { PrismaService } from '../common/prisma/prisma.service';
 import {
   RemoveProductCartRes,
   UpdateProductCartRes,
 } from './dto/res/index.res';
-import { ValidatorService } from '../helpers/service/validator.service';
+import { ValidatorService } from '../common/service/validator.service';
 
 @Injectable()
 export class CartsService {
@@ -100,7 +100,7 @@ export class CartsService {
         include: this.getCartIncludeRelations(),
       });
     } catch (error) {
-      throw new NotAcceptableException('Unable to create cart for user');
+      throw new NotAcceptableException('Unable to create cart for user', error);
     }
   }
 

@@ -4,9 +4,9 @@ import {
   NotFoundException,
   UseFilters,
 } from '@nestjs/common';
-import { PrismaService } from '../helpers/prisma/prisma.service';
+import { PrismaService } from '../common/prisma/prisma.service';
 import { VerificationTokens, Prisma } from '@prisma/client';
-import { GlobalExceptionFilter } from '../helpers/filters/global.exception.filter';
+import { GlobalExceptionFilter } from '../common/filters/global.exception.filter';
 
 @Injectable()
 @UseFilters(new GlobalExceptionFilter())

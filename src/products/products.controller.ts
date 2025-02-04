@@ -12,10 +12,10 @@ import {
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { AuthRole } from 'src/auth/decorators/auth.roles.decorator';
-import { GlobalExceptionFilter } from 'src/helpers/filters/global.exception.filter';
+import { GlobalExceptionFilter } from '../common/filters/global.exception.filter';
 import { UpdateProductImagesArgs } from './dto/args/update.product.image.args';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { OperationType } from 'src/helpers/enums/operation.type.enum';
+import { OperationType } from '../common/enums/operation.type.enum';
 
 @Controller('products')
 export class ProductsController {

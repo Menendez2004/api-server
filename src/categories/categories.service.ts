@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Categories } from '@prisma/client';
-import { PrismaService } from '../helpers/prisma/prisma.service';
+import { PrismaService } from '../common/prisma/prisma.service';
 import {
   CreateCategoryRes,
   RemoveCategoryRes,
@@ -12,7 +12,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { Prisma } from '@prisma/client';
 import { SortinCategoryInput } from './dto/category.sorting.input';
-import { PaginationInput } from '../helpers/pagination/index.pagination';
+import { PaginationInput } from '../common/pagination/index.pagination';
 import { CategoryPaginationFilter } from './filters/category.pagination.filter';
 import { CategoryPagination } from './dto/category.pagination.dto';
 

@@ -1,6 +1,6 @@
 import { ObjectType, Field } from '@nestjs/graphql';
 import { OrderType } from './index.types'; // Replace with your actual Order entity
-import { PaginationMeta } from '../../helpers/pagination/index.pagination';
+import { PaginationMeta } from '../../common/pagination/index.pagination';
 
 @ObjectType()
 export class OrderPagination {

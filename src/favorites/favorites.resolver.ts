@@ -1,7 +1,7 @@
 import { Resolver, Context, Mutation, Query, Args } from '@nestjs/graphql';
 import { Logger, UseFilters } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
-import { GlobalExceptionFilter } from 'src/helpers/filters/global.exception.filter';
+import { GlobalExceptionFilter } from '../common/filters/global.exception.filter';
 import { AuthRole } from 'src/auth/decorators/auth.roles.decorator';
 import { UpserFavoriteArgs } from './dto/arg/upser.favorite.args';
 import { FavoriteResponse } from './dto/res/index.favorites.res';
